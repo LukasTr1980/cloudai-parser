@@ -19,6 +19,7 @@ export default function Home() {
     if (error) {
       setErrorMessage(error);
       setSuccessMessage('');
+      setUploadCompleted(false);
       setSelectedFile(null);
     } else {
       setErrorMessage('');
@@ -53,8 +54,8 @@ export default function Home() {
   }, [selectedFile]);
 
   return (
-    <div className="flex flex-col items-center mt-2 ml-2 mr-2">
-      <h1 className="text-2xl font-bold mb-2">Cloud AI Parser</h1>
+    <div className="flex flex-col items-center mt-6 mx-4">
+      <h1 className="text-3xl font-bold mb-6">Cloud AI Parser</h1>
 
       <FileUploadArea
         selectedFile={selectedFile}
@@ -64,29 +65,39 @@ export default function Home() {
       />
 
       {(isUploading || uploadCompleted) && (
-        <div className="flex flex-col items-center">
-          <div className="relative w-64 h-4 bg-gray-200 rounded">
+        <div className="flex flex-col items-center mt-6 w-full max-w-md">
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
-              className="absolute left-0 top-0 h-4 bg-blue-500 rounded"
+              className="h-2.5 bg-blue-500 rounded-full transition-all duration-300"
               style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
-          <span className="mt-2 text-gray-700">
-            {isUploading
-              ? `Uploading... ${uploadProgress.toFixed(2)}%`
-              : `Upload completed: ${uploadProgress.toFixed(2)}%`
-            }
-          </span>
+          {uploadCompleted && (
+            <div className="flex items-center mt-4">
+              <svg
+                className="w-8 h-8 text-green-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <span className="ml-2 text-lg text-green-600 font-semibold">
+                Upload Complete
+              </span>
+            </div>
+          )}
         </div>
       )}
-      {successMessage && (
-        <p className="text-green-600 mt-2 mb-4 text-center" role="status">
-          {successMessage}
-        </p>
-      )}
       {errorMessage && (
-        <p className="text-red-600 mt-2 mb-4 text-center" role="alert">
-          {errorMessage}
+        <p className="text-red-600 ml-2 text-lg font-semibold" role="alert">
+          {errorMessage} Please select a valid file.
         </p>
       )}
     </div>
