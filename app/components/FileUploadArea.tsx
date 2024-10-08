@@ -1,14 +1,13 @@
 'use client';
 
-import { useRef } from "react";
+import { RefObject } from "react";
 import { FileUploadAreaProps } from "../types";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
     onFileSelect,
-    errorMessage,
+    fileInputRef
 }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -24,7 +23,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     return (
         <>
             <div
-                className="w-full max-w-md border-4 border-dashed border-gray-300 rounded-lg p-12 flex flex-col items-center justify-center cursor-pointer mb-4"
+                className="w-full bg-gray-50 hover:bg-gray-100 max-w-5xl border-4 border-dashed border-gray-300 rounded-lg p-28 flex flex-col items-center justify-center cursor-pointer mb-4"
                 onClick={handleClick}
             >
                 <svg
@@ -45,14 +44,10 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                     <p className="mt-2 text-lg">
                         Selected file:{' '}
                         <span className="text-green-600 font-bold">{selectedFile.name}</span>
+                        {' '}({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
                     </p>
                 )}
             </div>
-            {errorMessage && (
-                <p className="text-red-600 mt-2 mb-4 text-center" role="alert">
-                    {errorMessage}
-                </p>
-            )}
             <input
                 type="file"
                 ref={fileInputRef}

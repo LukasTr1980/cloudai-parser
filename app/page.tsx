@@ -1,72 +1,88 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { FileUploadArea } from "./components/FileUploadArea";
 import { validateFile } from "./utils/pagefilevalidation";
+import { uploadFile } from "./components/uploadFile";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
   const handleFileSelect = (file: File) => {
     const error = validateFile(file);
     if (error) {
       setErrorMessage(error);
+      setSuccessMessage('');
       setSelectedFile(null);
     } else {
       setErrorMessage('');
+      setSuccessMessage('');
       setSelectedFile(file);
     }
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
-    setUploadStatus('Uploading...');
-
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        setUploadStatus('File uploaded successfully!');
-        setSelectedFile(null);
-        setErrorMessage('');
-      } else {
-        const result = await response.json().catch(() => null);
-        const errorMessage = result?.message || `Upload failed due to server error.`;
-        setUploadStatus(errorMessage);
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setUploadStatus('An error occurred during upload.')
+  useEffect(() => {
+    if (selectedFile) {
+      const upload = async () => {
+        setIsUploading(true);
+        try {
+          await uploadFile(selectedFile, (progress) => {
+            setUploadProgress(progress);
+          });
+          setSuccessMessage('File uploaded successfully');
+        } catch (error: any) {
+          setErrorMessage(error?.message || 'An error occurred during upload.');
+        } finally {
+          setIsUploading(false);
+          setSelectedFile(null);
+          setUploadProgress(0);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        }
+      };
+      upload();
     }
-  };
+  }, [selectedFile]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-2xl font-bold mb-4">Upload a File</h1>
+    <div className="flex flex-col items-center mt-2 ml-2 mr-2">
+      <h1 className="text-2xl font-bold mb-2">Cloud AI Parser</h1>
 
       <FileUploadArea
         selectedFile={selectedFile}
         onFileSelect={handleFileSelect}
-        errorMessage={errorMessage}
+        fileInputRef={fileInputRef}
       />
 
-      <button
-        onClick={handleUpload}
-        className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-        disabled={!selectedFile}
-      >
-        Upload
-      </button>
-      {uploadStatus && <p className="mt-4">{uploadStatus}</p>}
+      {isUploading && (
+        <div className="mt-4 flex flex-col items-center">
+          <div className="relative w-64 h-4 bg-gray-200 rounded">
+            <div
+            className="absolute left-0 top-0 h-4 bg-blue-500 rounded"
+            style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+          <span className="mt-2 text-gray-700">
+            Uploading... {uploadProgress.toFixed(2)}%
+          </span>
+          </div>
+      )}
+      {successMessage && (
+        <p className="text-green-600 mt-2 mb-4 text-center" role="status">
+          {successMessage}
+        </p>
+      )}
+      {errorMessage && (
+        <p className="text-red-600 mt-2 mb-4 text-center" role="alert">
+          {errorMessage}
+        </p>
+      )}
     </div>
-  )
+  );
 }

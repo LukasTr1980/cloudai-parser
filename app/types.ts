@@ -1,3 +1,5 @@
+import { RefObject } from "react";
+
 export type ValidationResult =
     | {
         valid: true;
@@ -12,5 +14,5 @@ export type ValidationResult =
 export interface FileUploadAreaProps {
     selectedFile: File | null;
     onFileSelect: (file: File) => void;
-    errorMessage: string;
+    fileInputRef: RefObject<HTMLInputElement>;
 }
