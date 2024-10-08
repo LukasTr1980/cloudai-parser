@@ -12,6 +12,7 @@ export default function Home() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
 
   const handleFileSelect = (file: File) => {
     const error = validateFile(file);
@@ -22,6 +23,8 @@ export default function Home() {
     } else {
       setErrorMessage('');
       setSuccessMessage('');
+      setUploadCompleted(false);
+      setUploadProgress(0);
       setSelectedFile(file);
     }
   };
@@ -35,12 +38,11 @@ export default function Home() {
             setUploadProgress(progress);
           });
           setSuccessMessage('File uploaded successfully');
+          setUploadCompleted(true);
         } catch (error: any) {
           setErrorMessage(error?.message || 'An error occurred during upload.');
         } finally {
           setIsUploading(false);
-          setSelectedFile(null);
-          setUploadProgress(0);
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
           }
@@ -58,20 +60,24 @@ export default function Home() {
         selectedFile={selectedFile}
         onFileSelect={handleFileSelect}
         fileInputRef={fileInputRef}
+        isUploading={isUploading}
       />
 
-      {isUploading && (
-        <div className="mt-4 flex flex-col items-center">
+      {(isUploading || uploadCompleted) && (
+        <div className="flex flex-col items-center">
           <div className="relative w-64 h-4 bg-gray-200 rounded">
             <div
-            className="absolute left-0 top-0 h-4 bg-blue-500 rounded"
-            style={{ width: `${uploadProgress}%` }}
+              className="absolute left-0 top-0 h-4 bg-blue-500 rounded"
+              style={{ width: `${uploadProgress}%` }}
             ></div>
           </div>
           <span className="mt-2 text-gray-700">
-            Uploading... {uploadProgress.toFixed(2)}%
+            {isUploading
+              ? `Uploading... ${uploadProgress.toFixed(2)}%`
+              : `Upload completed: ${uploadProgress.toFixed(2)}%`
+            }
           </span>
-          </div>
+        </div>
       )}
       {successMessage && (
         <p className="text-green-600 mt-2 mb-4 text-center" role="status">

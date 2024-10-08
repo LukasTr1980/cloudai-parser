@@ -15,4 +15,5 @@ export interface FileUploadAreaProps {
     selectedFile: File | null;
     onFileSelect: (file: File) => void;
     fileInputRef: RefObject<HTMLInputElement>;
+    isUploading: boolean;
 }

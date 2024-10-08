@@ -6,7 +6,8 @@ import { FileUploadAreaProps } from "../types";
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
     onFileSelect,
-    fileInputRef
+    fileInputRef,
+    isUploading
 }) => {
 
     const handleClick = () => {
@@ -24,7 +25,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         <>
             <div
                 className="w-full bg-gray-50 hover:bg-gray-100 max-w-5xl border-4 border-dashed border-gray-300 rounded-lg p-28 flex flex-col items-center justify-center cursor-pointer mb-4"
-                onClick={handleClick}
+                onClick={!isUploading ? handleClick : undefined}
             >
                 <svg
                     className="w-12 h-12 text-gray-400 mb-3"
