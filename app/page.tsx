@@ -56,6 +56,11 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center mt-6 mx-4">
       <h1 className="text-3xl font-bold mb-6">Cloud AI Parser</h1>
+      <p className="text-gray-600 text-center mb-6">
+        Upload your files to extract from a PDF or an image the text. 
+        At the moment, a maximum file size of <span className="font-bold"> 20 MB </span> and a 
+        PDF with a maximum of <span className="font-bold">15 pages </span> is allowed. 
+      </p>
 
       <FileUploadArea
         selectedFile={selectedFile}
@@ -96,9 +101,26 @@ export default function Home() {
         </div>
       )}
       {errorMessage && (
-        <p className="text-red-600 ml-2 text-lg font-semibold" role="alert">
-          {errorMessage} Please select a valid file.
-        </p>
+        <div className="flex items-center mt-4">
+          <svg
+            className="w-8 h-8 text-red-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+
+          <span className="text-red-600 ml-2 text-lg font-semibold" role="alert">
+            {errorMessage} Please select a valid file.
+          </span>
+        </div>
       )}
     </div>
   );
