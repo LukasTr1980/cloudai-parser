@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         console.info('Saving file to path:', filePath);
         await fs.writeFile(filePath, buffer);
         console.info('File uploaded successfully:', uniqueFileName);
-        return NextResponse.json({ message: 'File uploaded successfully!' }, { status: 200 });
+        return NextResponse.json({ message: 'File uploaded successfully!', fileName: uniqueFileName }, { status: 200 });
     } catch (error) {
         console.error('Error while saving file:', error);
         return NextResponse.json({ message: 'Failed to save file' }, { status: 500 });

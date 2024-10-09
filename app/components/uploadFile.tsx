@@ -7,7 +7,7 @@ export async function uploadFile(
 
     const xhr = new XMLHttpRequest();
 
-    return new Promise((resolve, reject) => {
+    return new Promise<{ fileName: string }>((resolve, reject) => {
         xhr.upload.addEventListener('progress', (event) => {
             if (event.lengthComputable) {
                 const percentage = (event.loaded / event.total) * 100;
@@ -18,7 +18,13 @@ export async function uploadFile(
         xhr.onreadystatechange = () => {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve('File uploaded successfully');
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        resolve(response);
+                    } catch (error) {
+                        console.error(error);
+                        reject(new Error('Failed to parse server response'));
+                    }
                 } else {
                     reject(new Error('Upload failed'));
                 }
