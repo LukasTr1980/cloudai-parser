@@ -9,14 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google-cloud/documentai": "^8.10.0",
     "file-type": "^19.5.0",
     "filenamify": "^6.0.0",
+    "mime-types": "^2.1.35",
     "next": "14.2.14",
     "react": "^18",
     "react-dom": "^18",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@types/mime-types": "^2.1.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
