@@ -2,6 +2,7 @@
 
 import { FileUploadAreaProps } from "../types";
 import React, { useState } from "react";
+import { IMGIcon, PDFIcon } from "./icons";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
@@ -10,7 +11,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     isUploading
 }) => {
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
-    const [, setDragCounter] = useState<number>(0);
+    const [dragCounter, setDragCounter] = useState<number>(0);
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -69,29 +70,20 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     return (
         <>
             <div
-                className={`w-full max-w-md bg-white border-2 border-dashed border-gray-300 rounded-lg 
-                    p-8 flex flex-col items-center justify-center mb-6 cursor-pointer transition-all duration-200 
+                className={`w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
+                    p-16 flex flex-col items-center justify-center mb-4 cursor-pointer transition-all duration-200 
                     ${isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
-                    ${isDragOver ? 'bg-gray-100 border-blue-400' : ''}`}
+                    ${isDragOver ? 'bg-gray-50' : ''}`}
                 onClick={!isUploading ? handleClick : undefined}
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={!isUploading ? handleDrop : undefined}
             >
-                <svg
-                    className={`w-12 h-12 mb-4 ${isDragOver ? 'text-blue-400' : 'text-gray-400'}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M7 16V8m0 8l5-5m-5 5l5 5m-5-5h10"
-                    />
-                </svg>
+                <div className="flex items-center justify-between space-x-8 mb-4">
+                    <PDFIcon className={`min-w-16 min-h-16 w-16 h-16 ${isDragOver ? 'text-blue-400' : 'text-gray-600'}`} />
+                    <IMGIcon className={`min-w-14 min-h-14 w-14 h-14 ${isDragOver ? 'text-blue-400' : 'text-gray-600'}`} />
+                </div>
                 {isDragOver ? (
                     <p className="text-blue-600 text-lg">Release to upload your file</p>
                 ) : (

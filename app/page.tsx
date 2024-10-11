@@ -3,7 +3,9 @@
 import { useEffect, useState, useRef } from "react";
 import { FileUploadArea } from "./components/FileUploadArea";
 import { validateFile } from "./utils/pagefilevalidation";
-import { uploadFile } from "./components/uploadFile";
+import { uploadFile } from "./utils/uploadFile";
+import { handleCopyToClipboard } from "./utils/clipboardUtils";
+import { UploadIcon, LanguageIcon, PrivacyIcon } from "./components/icons";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -93,28 +95,36 @@ export default function Home() {
     }
   }
 
-  const handleCopyToClipboard = () => {
-    if (extractedText) {
-      navigator.clipboard.writeText(extractedText)
-        .then(() => {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000)
-        })
-        .catch((err) => {
-          console.error('Could not copy text: ', err);
-        })
-    }
-  }
+  const handleCopy = () => {
+    handleCopyToClipboard({ extractedText, setCopied });
+  };
 
   return (
-    <div className="flex flex-col items-center mt-6 mx-4">
+    <div className="flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6">Cloud AI Parser</h1>
-      <p className="text-gray-600 text-center mb-6">
-        Upload your files to extract from a PDF or an image the text.
-        At the moment, a maximum file size of <span className="font-bold"> 20 MB </span> and a
-        PDF with a maximum of <span className="font-bold">15 pages </span> is allowed.
-      </p>
-
+      <div className="text-gray-600 text-left mb-6">
+        <p className="mb-1 inline-flex items-center">
+          <UploadIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
+          <span>
+            Upload your files to extract text from a PDF or image. Currently, a maximum file size of
+            <span className="font-bold"> 20 MB</span> is allowed, and PDFs can contain up to <span className="font-bold">15 pages</span>.
+          </span>
+        </p>
+        <p className="mb-1 inline-flex items-center">
+          <LanguageIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
+          <span>
+            Over <b>200</b> languages are supported.
+          </span>
+        </p>
+        <p className="mb-1 inline-flex items-center">
+          <PrivacyIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
+          <span>
+            To ensure your <b>Privacy</b>, files are deleted
+            immediately after the operation is completed. In the unlikely event that an error prevents file deletion, the file will remain on
+            the server for a maximum of <b>24 hours</b>. A deletion procedure will remove it then. All files are <b>encrypted</b>, so no one will have access to them.
+          </span>
+        </p>
+      </div>
       <FileUploadArea
         selectedFile={selectedFile}
         onFileSelect={handleFileSelect}
@@ -123,7 +133,7 @@ export default function Home() {
       />
 
       {(isUploading || uploadCompleted) && (
-        <div className="flex flex-col items-center mt-6 w-full max-w-md">
+        <div className="flex flex-col items-center mt-4 w-full">
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
               className="h-2.5 bg-blue-500 rounded-full transition-all duration-300"
@@ -152,7 +162,7 @@ export default function Home() {
                 </span>
               </div>
               <button
-                className="mt-4 px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="mt-4 px-6 py-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 onClick={handleConvert}
                 disabled={isConverting}
               >
@@ -164,7 +174,7 @@ export default function Home() {
       )}
 
       {errorMessage && (
-        <div className="flex items-center mt-4">
+        <div className="flex items-center mt-2">
           <svg
             className="w-8 h-8 text-red-500"
             xmlns="http://www.w3.org/2000/svg"
@@ -197,7 +207,7 @@ export default function Home() {
             />
             <button
               className="absolute top-2 p-1 right-8 border rounded-lg text-gray-600 hover:bg-gray-50"
-              onClick={handleCopyToClipboard}
+              onClick={handleCopy}
               aria-label="Copy extracted text to clipboard"
             >
               {copied ? (

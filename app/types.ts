@@ -17,3 +17,8 @@ export interface FileUploadAreaProps {
     fileInputRef: RefObject<HTMLInputElement>;
     isUploading: boolean;
 }
+
+export interface ClipBoardUitlsProps {
+    extractedText: string;
+    setCopied: React.Dispatch<React.SetStateAction<boolean>>;
+}
