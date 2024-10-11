@@ -19,7 +19,7 @@ const LanguageIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ className = '',
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
         stroke="currentColor"
-        stroke-width="1"
+        strokeWidth="1"
         strokeLinecap="square"
         strokeLinejoin="miter"
         fill="none"

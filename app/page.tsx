@@ -102,7 +102,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6">Cloud AI Parser</h1>
-      <div className="text-gray-600 text-left mb-6">
+      <div className="text-gray-600 text-left mb-6 border border-gray-300 p-2">
         <p className="mb-1 inline-flex items-center">
           <UploadIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
           <span>
@@ -190,7 +190,7 @@ export default function Home() {
             />
           </svg>
 
-          <span className="text-red-600 ml-2 text-lg font-semibold" role="alert">
+          <span className="text-red-600 ml-2 text-lg text-center font-semibold" role="alert">
             {errorMessage}
           </span>
         </div>

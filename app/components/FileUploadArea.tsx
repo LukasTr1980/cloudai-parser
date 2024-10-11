@@ -11,7 +11,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     isUploading
 }) => {
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
-    const [dragCounter, setDragCounter] = useState<number>(0);
+    const [, setDragCounter] = useState<number>(0);
 
     const handleClick = () => {
         fileInputRef.current?.click();
@@ -81,13 +81,17 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 onDrop={!isUploading ? handleDrop : undefined}
             >
                 <div className="flex items-center justify-between space-x-8 mb-4">
-                    <PDFIcon className={`min-w-16 min-h-16 w-16 h-16 ${isDragOver ? 'text-blue-400' : 'text-gray-600'}`} />
-                    <IMGIcon className={`min-w-14 min-h-14 w-14 h-14 ${isDragOver ? 'text-blue-400' : 'text-gray-600'}`} />
+                    <PDFIcon
+                        className={`min-w-16 min-h-16 w-16 h-16 ${isDragOver ? 'text-blue-400' : 'text-gray-600'}`}
+                    />
+                    <IMGIcon
+                        className={`min-w-14 min-h-14 w-14 h-14 ${isDragOver ? 'text-blue-400' : 'text-gray-600'}`}
+                    />
                 </div>
                 {isDragOver ? (
-                    <p className="text-blue-600 text-lg">Release to upload your file</p>
+                    <p className="text-blue-600 text-center text-lg">Release to upload your file</p>
                 ) : (
-                    <p className="text-gray-600 text-lg">Click or drag file to this area to upload</p>
+                    <p className="text-gray-600 text-center text-lg">Click or drag file to this area to upload</p>
                 )}
                 {selectedFile && (
                     <p className="mt-4 text-gray-700 text-center">
