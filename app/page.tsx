@@ -5,13 +5,15 @@ import { FileUploadArea } from "./components/FileUploadArea";
 import { validateFile } from "./utils/pagefilevalidation";
 import { uploadFile } from "./utils/uploadFile";
 import { handleCopyToClipboard } from "./utils/clipboardUtils";
+import { downloadTextFile } from "./utils/downloadUtils";
 import {
   UploadIcon,
   LanguageIcon,
   PrivacyIcon,
   CopyIcon,
   CheckIcon,
-  ErrorIcon
+  ErrorIcon,
+  DownloadIcon
 } from "./components/icons";
 
 export default function Home() {
@@ -26,6 +28,7 @@ export default function Home() {
   const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
   const [extractedText, setExtractedText] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
+  const [textFileName, setTextFileName] = useState<string>('extracted_text');
 
   const handleFileSelect = (file: File) => {
     const error = validateFile(file);
@@ -106,6 +109,12 @@ export default function Home() {
     handleCopyToClipboard({ extractedText, setCopied });
   };
 
+  const handleDownload = () => {
+    if (extractedText) {
+      downloadTextFile({ extractedText, fileName: textFileName });
+    }
+  };
+
   return (
     <div className="flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-6">Cloud AI Parser</h1>
@@ -179,18 +188,27 @@ export default function Home() {
       {extractedText && (
         <div className="mt-6 w-full max-w-6xl">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl text-gray-600 font-semibold">Extracted Text:</h2>
-            <button
-              className="p-1 border rounded-lg text-gray-600 hover:bg-gray-50"
-              onClick={handleCopy}
-              aria-label="Copy extracted text to clipboard"
-            >
-              {copied ? (
-                <CheckIcon className="w-6 h-6 min-w-6 min-h-6" />
-              ) : (
-                <CopyIcon className="w-6 h-6 min-w-6 min-h-6" />
-              )}
-            </button>
+            <h2 className="ml-2 text-xl text-gray-600 font-semibold">Extracted Text:</h2>
+            <div className="flex items-center space-x-2 mr-2">
+              <button
+                className="p-1 border rounded-lg text-gray-600 hover:bg-gray-50"
+                onClick={handleCopy}
+                aria-label="Copy extracted text to clipboard"
+              >
+                {copied ? (
+                  <CheckIcon className="w-6 h-6 min-w-6 min-h-6" />
+                ) : (
+                  <CopyIcon className="w-6 h-6 min-w-6 min-h-6" />
+                )}
+              </button>
+              <button
+                className="p-1 border rounded-lg text-gray-600 hover:bg-gray-50"
+                onClick={handleDownload}
+                aria-label="Download extracted Text as .txt file"
+              >
+                <DownloadIcon className="w-6 h-6 min-w-6 min-h-6" />
+              </button>
+            </div>
           </div>
           <textarea
             className="w-full h-96 p-4 border rounded overflow-y-auto"
