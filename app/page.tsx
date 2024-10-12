@@ -5,7 +5,14 @@ import { FileUploadArea } from "./components/FileUploadArea";
 import { validateFile } from "./utils/pagefilevalidation";
 import { uploadFile } from "./utils/uploadFile";
 import { handleCopyToClipboard } from "./utils/clipboardUtils";
-import { UploadIcon, LanguageIcon, PrivacyIcon } from "./components/icons";
+import {
+  UploadIcon,
+  LanguageIcon,
+  PrivacyIcon,
+  CopyIcon,
+  CheckIcon,
+  ErrorIcon
+} from "./components/icons";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -143,20 +150,7 @@ export default function Home() {
           {uploadCompleted && (
             <>
               <div className="flex items-center mt-4">
-                <svg
-                  className="w-8 h-8 text-green-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <CheckIcon className="w-8 h-8 min-w-8 min-h-8 text-green-500" />
                 <span className="ml-2 text-lg text-green-600 font-semibold">
                   Upload Complete
                 </span>
@@ -175,21 +169,7 @@ export default function Home() {
 
       {errorMessage && (
         <div className="flex items-center mt-2">
-          <svg
-            className="w-8 h-8 text-red-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-
+          <ErrorIcon className="w-8 h-8 min-w-8 min-h-8" />
           <span className="text-red-600 ml-2 text-lg text-center font-semibold" role="alert">
             {errorMessage}
           </span>
@@ -198,52 +178,25 @@ export default function Home() {
 
       {extractedText && (
         <div className="mt-6 w-full max-w-6xl">
-          <h2 className="text-xl font-semibold mb-2">Extracted Text:</h2>
-          <div className="relative">
-            <textarea
-              className="w-full h-96 p-4 border rounded overflow-y-auto"
-              defaultValue={extractedText}
-              spellCheck={false}
-            />
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xl text-gray-600 font-semibold">Extracted Text:</h2>
             <button
-              className="absolute top-2 p-1 right-8 border rounded-lg text-gray-600 hover:bg-gray-50"
+              className="p-1 border rounded-lg text-gray-600 hover:bg-gray-50"
               onClick={handleCopy}
               aria-label="Copy extracted text to clipboard"
             >
               {copied ? (
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <CheckIcon className="w-6 h-6 min-w-6 min-h-6" />
               ) : (
-                <svg
-                  className="w-5 h-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <rect x="9" y="5" width="13" height="13" rx="2" ry="2" />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth=""
-                    d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"
-                  />
-                </svg>
+                <CopyIcon className="w-6 h-6 min-w-6 min-h-6" />
               )}
             </button>
           </div>
+          <textarea
+            className="w-full h-96 p-4 border rounded overflow-y-auto"
+            defaultValue={extractedText}
+            spellCheck={false}
+          />
         </div>
       )}
     </div>
