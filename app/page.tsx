@@ -15,6 +15,7 @@ import {
   DownloadIcon,
   OpenSourceIcon,
 } from "./components/icons";
+import Spinner from "./components/spinner";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -24,7 +25,6 @@ export default function Home() {
   const [isConverting, setIsConverting] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [, setSuccessMessage] = useState<string>('');
   const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
   const [extractedText, setExtractedText] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
@@ -34,13 +34,11 @@ export default function Home() {
     const error = validateFile(file);
     if (error) {
       setErrorMessage(error);
-      setSuccessMessage('');
       setUploadCompleted(false);
       setUploadedFileName(null);
       setSelectedFile(null);
     } else {
       setErrorMessage('');
-      setSuccessMessage('');
       setUploadCompleted(false);
       setUploadProgress(0);
       setUploadedFileName(null);
@@ -51,34 +49,34 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedFile) {
-      const upload = async () => {
-        setIsUploading(true);
-        try {
-          const response = await uploadFile(selectedFile, (progress) => {
-            setUploadProgress(progress);
-          });
-          setSuccessMessage('File uploaded successfully');
-          setUploadedFileName(response.fileName);
-          setUploadCompleted(true);
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            setErrorMessage(error?.message || 'An error occurred during upload.');
-          } else {
-            setErrorMessage('An unknown error occurred during upload.');
-          }
-        } finally {
-          setIsUploading(false);
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-        }
-      };
-      upload();
+      uploadFileAsync(selectedFile);
     }
   }, [selectedFile]);
 
+  const uploadFileAsync = async (file: File) => {
+    setIsUploading(true);
+    try {
+      const response = await uploadFile(file, (progress) => {
+        setUploadProgress(progress);
+      });
+      setUploadedFileName(response.fileName);
+      setUploadCompleted(true);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message || 'An error occurred during upload.');
+      } else {
+        setErrorMessage('An unknown error occurred during upload.');
+      }
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleConvert = async () => {
-    if (!uploadedFileName) {
+    if (!uploadedFileName || !uploadCompleted) {
       setErrorMessage('No file to convert');
       return;
     }
@@ -169,11 +167,14 @@ export default function Home() {
         />
         {(isUploading || uploadCompleted) && (
           <div className="mt-6">
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4 relative">
               <div
                 className="h-2.5 bg-blue-500 rounded-full transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               ></div>
+              <span className="absolute inset-0 flex items-center justify-center text-xs text-gray-700">
+                {uploadProgress}%
+              </span>
             </div>
             {uploadCompleted && (
               <div className="flex flex-col items-center">
@@ -182,11 +183,18 @@ export default function Home() {
                   <span className="text-lg font-semibold">Upload Complete</span>
                 </div>
                 <button
-                  className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  className="relative px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
+                            disabled:bg-gray-400 "
                   onClick={handleConvert}
                   disabled={isConverting}
                 >
-                  {isConverting ? 'Converting...' : 'Convert to Text'}
+                  <span className={isConverting ? 'invisible' : ''}>Convert to text</span>
+                  {isConverting && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Spinner />
+                    </div>
+                  )}
                 </button>
               </div>
             )}
