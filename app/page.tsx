@@ -13,7 +13,8 @@ import {
   CopyIcon,
   CheckIcon,
   ErrorIcon,
-  DownloadIcon
+  DownloadIcon,
+  OpenSourceIcon,
 } from "./components/icons";
 
 export default function Home() {
@@ -137,7 +138,17 @@ export default function Home() {
           <span>
             To ensure your <b>Privacy</b>, files are deleted
             immediately after the operation is completed. In the unlikely event that an error prevents file deletion, the file will remain on
-            the server for a maximum of <b>24 hours</b>. A deletion procedure will remove it then. All files are <b>encrypted</b>, so no one will have access to them.
+            the server for a maximum of <b>24 hours</b>. A deletion procedure will remove it then.
+            The downloadable <b>Text File</b> never leaves your Browser. It&#39;s all made on your PC.
+          </span>
+        </p>
+        <p className="mb-1 inline-flex items-center">
+          <OpenSourceIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
+          <span>
+            The entire app is <b>Open Source</b>. You can watch it&nbsp;
+            <a href="https://github.com/LukasTr1980/cloudai-parser" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+            here
+            </a>.
           </span>
         </p>
       </div>
