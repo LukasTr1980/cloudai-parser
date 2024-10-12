@@ -26,13 +26,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
-        <div className="flex justify-center min-h-screen">
+        <div className="flex flex-grow justify-center">
           <div className="w-full max-w-5xl mx-2 mt-6">
             {children}
           </div>
         </div>
+        <footer className="text-center text-gray-500 text-sm py-4">
+          {new Date().getFullYear()} Cloud AI Parser
+        </footer>
       </body>
     </html>
   );

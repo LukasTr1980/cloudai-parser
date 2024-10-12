@@ -12,7 +12,6 @@ import {
   PrivacyIcon,
   CopyIcon,
   CheckIcon,
-  ErrorIcon,
   DownloadIcon,
   OpenSourceIcon,
 } from "./components/icons";
@@ -117,117 +116,130 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6">Cloud AI Parser</h1>
-      <div className="text-gray-600 text-left mb-6 border border-gray-300 p-2">
-        <p className="mb-1 inline-flex items-center">
-          <UploadIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
-          <span>
-            Upload your files to extract text from a PDF or image. Currently, a maximum file size of
-            <span className="font-bold"> 20 MB</span> is allowed, and PDFs can contain up to <span className="font-bold">15 pages</span>.
-          </span>
+    <div className="container mx-auto px-4 py-8">
+      <header className="text-center mb-8">
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-4">Cloud AI Parser</h1>
+        <p className="text-lg text-gray-600">
+          Extract text from PDFs and images using the power of AI.
         </p>
-        <p className="mb-1 inline-flex items-center">
-          <LanguageIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
-          <span>
-            Over <b>200</b> languages are supported.
-          </span>
-        </p>
-        <p className="mb-1 inline-flex items-center">
-          <PrivacyIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
-          <span>
-            To ensure your <b>Privacy</b>, files are deleted
-            immediately after the operation is completed. In the unlikely event that an error prevents file deletion, the file will remain on
-            the server for a maximum of <b>24 hours</b>. A deletion procedure will remove it then.
-            The downloadable <b>Text File</b> never leaves your Browser. It&#39;s all made on your PC.
-          </span>
-        </p>
-        <p className="mb-1 inline-flex items-center">
-          <OpenSourceIcon className="min-w-14 min-h-14 w-14 h-14 mr-2" />
-          <span>
-            The entire app is <b>Open Source</b>. You can watch it&nbsp;
-            <a href="https://github.com/LukasTr1980/cloudai-parser" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-            here
+      </header>
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
+          <UploadIcon className="w-12 h-12 text-blue-500 mb-2" />
+          <h3 className="text-xl font-semibold mb-1">Upload Files</h3>
+          <p className="text-center text-gray-600">
+            Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}
+            <strong>15 pages</strong>.
+          </p>
+        </div>
+        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
+          <LanguageIcon className="w-12 h-12 text-green-500 mb-2" />
+          <h3 className="text-xl font-semibold mb-1">200+ Languages</h3>
+          <p className="text-center text-gray-600">Supports over 200 languages for text extraction.</p>
+        </div>
+        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
+          <PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />
+          <h3 className="text-xl font-semibold mb-1">Privacy First</h3>
+          <p className="text-center text-gray-600">
+            Files are deleted immediately after processing. Your data stays private.
+          </p>
+        </div>
+        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
+          <OpenSourceIcon className="w-12 h-12 text-yellow-500 mb-2" />
+          <h3 className="text-xl font-semibold mb-1">Open Source</h3>
+          <p className="text-center text-gray-500">
+            View the project on{' '}
+            <a
+              href="https://github.com/LukasTr1980/cloudai-parser"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline">
+              Github
             </a>.
-          </span>
-        </p>
-      </div>
-      <FileUploadArea
-        selectedFile={selectedFile}
-        onFileSelect={handleFileSelect}
-        fileInputRef={fileInputRef}
-        isUploading={isUploading}
-      />
-
-      {(isUploading || uploadCompleted) && (
-        <div className="flex flex-col items-center mt-4 w-full">
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div
-              className="h-2.5 bg-blue-500 rounded-full transition-all duration-300"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
-          {uploadCompleted && (
-            <>
-              <div className="flex items-center mt-4">
-                <CheckIcon className="w-8 h-8 min-w-8 min-h-8 text-green-500" />
-                <span className="ml-2 text-lg text-green-600 font-semibold">
-                  Upload Complete
-                </span>
-              </div>
-              <button
-                className="mt-4 px-6 py-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                onClick={handleConvert}
-                disabled={isConverting}
-              >
-                {isConverting ? 'Converting...' : 'Convert to Text'}
-              </button>
-            </>
-          )}
+          </p>
         </div>
-      )}
+      </section>
 
-      {errorMessage && (
-        <div className="flex items-center mt-2">
-          <ErrorIcon className="w-8 h-8 min-w-8 min-h-8" />
-          <span className="text-red-600 ml-2 text-lg text-center font-semibold" role="alert">
-            {errorMessage}
-          </span>
-        </div>
-      )}
-
-      {extractedText && (
-        <div className="mt-6 w-full max-w-6xl">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="ml-2 text-xl text-gray-600 font-semibold">Extracted Text:</h2>
-            <div className="flex items-center space-x-2 mr-2">
-              <button
-                className="p-1 border rounded-lg text-gray-600 hover:bg-gray-50"
-                onClick={handleCopy}
-                aria-label="Copy extracted text to clipboard"
-              >
-                {copied ? (
-                  <CheckIcon className="w-6 h-6 min-w-6 min-h-6" />
-                ) : (
-                  <CopyIcon className="w-6 h-6 min-w-6 min-h-6" />
-                )}
-              </button>
-              <button
-                className="p-1 border rounded-lg text-gray-600 hover:bg-gray-50"
-                onClick={handleDownload}
-                aria-label="Download extracted Text as .txt file"
-              >
-                <DownloadIcon className="w-6 h-6 min-w-6 min-h-6" />
-              </button>
+      <section className="mb-8">
+        <FileUploadArea
+          selectedFile={selectedFile}
+          onFileSelect={handleFileSelect}
+          fileInputRef={fileInputRef}
+          isUploading={isUploading}
+        />
+        {(isUploading || uploadCompleted) && (
+          <div className="mt-6">
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+              <div
+                className="h-2.5 bg-blue-500 rounded-full transition-all duration-300"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
             </div>
+            {uploadCompleted && (
+              <div className="flex flex-col items-center">
+                <div className="flex items-center text-green-600 mb-4">
+                  <CheckIcon className="w-6 h-6 mr-2" />
+                  <span className="text-lg font-semibold">Upload Complete</span>
+                </div>
+                <button
+                  className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  onClick={handleConvert}
+                  disabled={isConverting}
+                >
+                  {isConverting ? 'Converting...' : 'Convert to Text'}
+                </button>
+              </div>
+            )}
           </div>
-          <textarea
-            className="w-full h-96 p-4 border rounded overflow-y-auto"
-            defaultValue={extractedText}
-            spellCheck={false}
-          />
-        </div>
-      )}
+        )}
+
+        {errorMessage && (
+          <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Error:{' '}</strong>
+            <span className="block sm:inline">{errorMessage}</span>
+          </div>
+        )}
+      </section>
+
+      <section className="mb-8">
+        {extractedText && (
+          <div className="bg-white shadow rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-semibold text-gray-800">Extracted Text:</h2>
+              <div className="flex items-center space-x-2">
+                <button
+                  className="flex items-center px-3 py-2 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onClick={handleCopy}
+                  aria-label="Copy text"
+                >
+                  {copied ? (
+                    <CheckIcon className="w-5 h-5 text-green-500 mr-1" />
+                  ) : (
+                    <CopyIcon className="w-5 h-5 text-gray-600 mr-1" />
+                  )}
+                  <span className="text-sm">
+                    {copied ? 'Copied' : 'Copy'}
+                  </span>
+                </button>
+                <button
+                  className="flex items-center px-3 py-2 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onClick={handleDownload}
+                  aria-label="Download text"
+                >
+                  <DownloadIcon className="w-5 h-5 text-gray-600 mr-1" />
+                  <span className="text-sm">Download</span>
+                </button>
+              </div>
+            </div>
+            <textarea
+              className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={extractedText}
+              spellCheck={false}
+              readOnly
+            />
+          </div>
+        )}
+      </section>
     </div>
   );
 }
