@@ -10,12 +10,15 @@ import {
   UploadIcon,
   LanguageIcon,
   PrivacyIcon,
-  CopyIcon,
   CheckIcon,
-  DownloadIcon,
   OpenSourceIcon,
 } from "./components/icons";
 import Spinner from "./components/spinner";
+import Header from "./components/Header";
+import FeatureCard from "./components/FeatureCard";
+import ProgressBar from "./components/ProgressBar";
+import ErrorMessage from "./components/ErrorMessage";
+import ExtractedTextSection from "./components/ExtractedTextSection";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -115,47 +118,43 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <header className="text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-4">Cloud AI Parser</h1>
-        <p className="text-lg text-gray-600">
-          Extract text from PDFs and images using the power of AI.
-        </p>
-      </header>
+      <Header />
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
-          <UploadIcon className="w-12 h-12 text-blue-500 mb-2" />
-          <h3 className="text-xl font-semibold mb-1">Upload Files</h3>
-          <p className="text-center text-gray-600">
-            Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}
-            <strong>15 pages</strong>.
-          </p>
-        </div>
-        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
-          <LanguageIcon className="w-12 h-12 text-green-500 mb-2" />
-          <h3 className="text-xl font-semibold mb-1">200+ Languages</h3>
-          <p className="text-center text-gray-600">Supports over 200 languages for text extraction.</p>
-        </div>
-        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
-          <PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />
-          <h3 className="text-xl font-semibold mb-1">Privacy First</h3>
-          <p className="text-center text-gray-600">
-            Files are deleted immediately after processing. Your data stays private.
-          </p>
-        </div>
-        <div className="flex flex-col items-center p-4 bg-white shadow rounded-lg">
-          <OpenSourceIcon className="w-12 h-12 text-yellow-500 mb-2" />
-          <h3 className="text-xl font-semibold mb-1">Open Source</h3>
-          <p className="text-center text-gray-500">
-            View the project on{' '}
-            <a
-              href="https://github.com/LukasTr1980/cloudai-parser"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline">
-              Github
-            </a>.
-          </p>
-        </div>
+        <FeatureCard
+          icon={<UploadIcon className="w-12 h-12 text-blue-500 mb-2" />}
+          title="Upload Files"
+          description={
+            <>
+              Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}<strong>15 pages</strong>.
+            </>
+          }
+        />
+        <FeatureCard
+          icon={<LanguageIcon className="w-12 h-12 text-green-500 mb-2" />}
+          title="200+ Languages"
+          description="Supports over 200 languages for text extraction."
+        />
+        <FeatureCard
+          icon={<PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />}
+          title="Privacy First"
+          description="Files are deleted immediately after processing. Your data stays private."
+        />
+        <FeatureCard
+          icon={<OpenSourceIcon className="w-12 h-12 text-yellow-500 mb-2" />}
+          title="Open Source"
+          description={
+            <>
+              View the project on{' '}
+              <a
+                href="https://github.com/LukasTr1980/cloudai-parser"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline">
+                Github
+              </a>.
+            </>
+          }
+        />
       </section>
 
       <section className="mb-8">
@@ -167,15 +166,7 @@ export default function Home() {
         />
         {(isUploading || uploadCompleted) && (
           <div className="mt-6">
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4 relative">
-              <div
-                className="h-2.5 bg-blue-500 rounded-full transition-all duration-300"
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-              <span className="absolute inset-0 flex items-center justify-center text-xs text-gray-700">
-                {uploadProgress}%
-              </span>
-            </div>
+            <ProgressBar progress={uploadProgress} />
             {uploadCompleted && (
               <div className="flex flex-col items-center">
                 <div className="flex items-center text-green-600 mb-4">
@@ -200,52 +191,17 @@ export default function Home() {
             )}
           </div>
         )}
-
-        {errorMessage && (
-          <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Error:{' '}</strong>
-            <span className="block sm:inline">{errorMessage}</span>
-          </div>
-        )}
+        {errorMessage && <ErrorMessage message={errorMessage} />}
       </section>
 
       <section className="mb-8">
         {extractedText && (
-          <div className="bg-white shadow rounded-lg p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-semibold text-gray-800">Extracted Text:</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  className="flex items-center px-3 py-2 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onClick={handleCopy}
-                  aria-label="Copy text"
-                >
-                  {copied ? (
-                    <CheckIcon className="w-5 h-5 text-green-500 mr-1" />
-                  ) : (
-                    <CopyIcon className="w-5 h-5 text-gray-600 mr-1" />
-                  )}
-                  <span className="text-sm">
-                    {copied ? 'Copied' : 'Copy'}
-                  </span>
-                </button>
-                <button
-                  className="flex items-center px-3 py-2 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onClick={handleDownload}
-                  aria-label="Download text"
-                >
-                  <DownloadIcon className="w-5 h-5 text-gray-600 mr-1" />
-                  <span className="text-sm">Download</span>
-                </button>
-              </div>
-            </div>
-            <textarea
-              className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={extractedText}
-              spellCheck={false}
-              readOnly
-            />
-          </div>
+          <ExtractedTextSection
+            extractedText={extractedText}
+            copied={copied}
+            handleCopy={handleCopy}
+            handleDownload={handleDownload}
+          />
         )}
       </section>
     </div>

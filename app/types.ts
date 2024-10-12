@@ -1,4 +1,4 @@
-import { RefObject } from "react";
+import { ReactNode, RefObject } from "react";
 
 export type ValidationResult =
     | {
@@ -21,4 +21,25 @@ export interface FileUploadAreaProps {
 export interface ClipBoardUitlsProps {
     extractedText: string;
     setCopied: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface FeatureCardProps {
+    icon: ReactNode;
+    title: string;
+    description: React.ReactNode;
+}
+
+export interface ProgressBarProps {
+    progress: number;
+}
+
+export interface ErrorMessageProps {
+    message: string;
+}
+
+export interface ExtractedTextSectionProps {
+    extractedText: string;
+    copied: boolean;
+    handleCopy: () => void;
+    handleDownload: () => void;
 }
