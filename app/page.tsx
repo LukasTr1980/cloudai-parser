@@ -31,7 +31,7 @@ export default function Home() {
   const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
   const [extractedText, setExtractedText] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
-  const [textFileName, setTextFileName] = useState<string>('extracted_text');
+  const [textFileName] = useState<string>('extracted_text');
 
   const handleFileSelect = (file: File) => {
     const error = validateFile(file);
