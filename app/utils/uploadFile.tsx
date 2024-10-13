@@ -10,7 +10,7 @@ export async function uploadFile(
     return new Promise<{ fileName: string }>((resolve, reject) => {
         xhr.upload.addEventListener('progress', (event) => {
             if (event.lengthComputable) {
-                const percentage = (event.loaded / event.total) * 100;
+                const percentage = Math.floor((event.loaded / event.total) * 100);
                 onProgress(percentage);
             }
         });

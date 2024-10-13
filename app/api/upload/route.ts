@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from 'fs';
 import path from "path";
-import { validateFile } from "@/app/utils/apifilevalidation";
+import { apiValidateFile } from "@/app/utils/apifilevalidation";
 import { generateUUID } from "@/app/utils/uuid";
 import { rateLimiter } from "@/app/utils/rateLimiter";
 
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
 
     console.info('Validating file');
-    const validationResult = await validateFile(file);
+    const validationResult = await apiValidateFile(file);
     if (!validationResult.valid) {
         console.warn('File validation failed:', validationResult.message);
         return NextResponse.json({ message: validationResult.message }, { status: 400 });

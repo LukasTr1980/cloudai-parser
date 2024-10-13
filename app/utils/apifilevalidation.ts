@@ -4,7 +4,7 @@ import path from "path";
 import filenamify from "filenamify";
 import { ValidationResult } from "../types";
 
-export async function validateFile(file: File): Promise<ValidationResult> {
+export async function apiValidateFile(file: File): Promise<ValidationResult> {
     console.info('Starting file validation');
 
     if (!file) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { FileUploadArea } from "./components/FileUploadArea";
-import { validateFile } from "./utils/pagefilevalidation";
+import { pageValidateFile } from "./utils/pagefilevalidation";
 import { uploadFile } from "./utils/uploadFile";
 import { handleCopyToClipboard } from "./utils/clipboardUtils";
 import { downloadTextFile } from "./utils/downloadUtils";
@@ -34,20 +34,21 @@ export default function Home() {
   const [textFileName] = useState<string>('extracted_text');
 
   const handleFileSelect = (file: File) => {
-    const error = validateFile(file);
-    if (error) {
-      setErrorMessage(error);
-      setUploadCompleted(false);
-      setUploadedFileName(null);
-      setSelectedFile(null);
-    } else {
-      setErrorMessage('');
-      setUploadCompleted(false);
-      setUploadProgress(0);
-      setUploadedFileName(null);
-      setSelectedFile(file);
-      setExtractedText('');
-    }
+    pageValidateFile(file).then((error) => {
+      if (error) {
+        setErrorMessage(error);
+        setUploadCompleted(false);
+        setUploadedFileName(null);
+        setSelectedFile(null);
+      } else {
+        setErrorMessage('');
+        setUploadCompleted(false);
+        setUploadProgress(0);
+        setUploadedFileName(null);
+        setSelectedFile(file);
+        setExtractedText('');
+      }
+    });
   };
 
   useEffect(() => {
