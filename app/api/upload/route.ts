@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
     }
 
     const { buffer, extensionFromType } = validationResult;
-    const uploadDir = path.join(process.cwd(), 'uploads');
+
+    const uploadDirEnv = process.env.UPLOAD_DIRECTORY || '/tmp/';
+    const uploadDir = path.join(process.cwd(), uploadDirEnv);
 
     try {
         console.info('Creating upload directory if it does not exist:', uploadDir);
