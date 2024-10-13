@@ -3,7 +3,7 @@
 import { MAX_FILE_SIZE, ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES } from "./constants";
 import * as pdfjsLib from 'pdfjs-dist';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = process.env.NEXT_PUBLIC_PDFJS_WORKER_DIRECTORY || '/pdf.worker.min.mjs';
 
 export const getFileExtension = (filename: string): string => {
     const extension = filename.split('.').pop()?.toLocaleLowerCase();
@@ -27,7 +27,7 @@ export const pageValidateFile = (file: File): Promise<string | null> => {
 
         if (fileExtension === '.pdf') {
             if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-                pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+                pdfjsLib.GlobalWorkerOptions.workerSrc = process.env.NEXT_PUBLIC_PDFJS_WORKER_DIRECTORY || '/pdf.worker.min.mjs';
             }
 
             file.arrayBuffer().then(arrayBuffer => {
