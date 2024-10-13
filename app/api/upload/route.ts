@@ -3,9 +3,30 @@ import { promises as fs } from 'fs';
 import path from "path";
 import { validateFile } from "@/app/utils/apifilevalidation";
 import { generateUUID } from "@/app/utils/uuid";
+import { rateLimiter } from "@/app/utils/rateLimiter";
 
 
 export async function POST(request: NextRequest) {
+    const ip = 
+    request.headers.get('x-forwarded-for') ||
+    request.headers.get('x-real-ip') ||
+    request.ip ||
+    'Unknown';
+
+    const rateLimitKey = `cloud_ai_parser_rate_limit:${ip}`;
+
+    const maxRequests = 10;
+    const windowInSeconds = 60;
+
+    const isAllowed = await rateLimiter(rateLimitKey, maxRequests, windowInSeconds);
+
+    if (!isAllowed) {
+        return NextResponse.json(
+            { message: 'Too many requests. Please try again later.' },
+            { status: 429 }
+        );
+    }
+
     console.info('Received a file upload request');
 
     const formData = await request.formData();

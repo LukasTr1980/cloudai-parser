@@ -26,7 +26,14 @@ export async function uploadFile(
                         reject(new Error('Failed to parse server response'));
                     }
                 } else {
-                    reject(new Error('Upload failed'));
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        const errorMessage = errorResponse.message || 'Upload failed';
+                        reject(new Error(errorMessage));
+                    } catch (parseError) {
+                        console.error('Failed to parse error response:', parseError);
+                        reject(new Error('Upload failed'));
+                    }
                 }
             }
         };

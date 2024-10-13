@@ -3,8 +3,29 @@ import path from "path";
 import { promises as fs } from 'fs';
 import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
 import mime from 'mime-types';
+import { rateLimiter } from "@/app/utils/rateLimiter";
 
 export async function POST(request: NextRequest) {
+    const ip = 
+    request.headers.get('x-forwarded-for') ||
+    request.headers.get('x-real-ip') ||
+    request.ip ||
+    'Unknown';
+
+    const rateLimitKey = `cloud_ai_parser_rate_limit:${ip}`;
+
+    const maxRequests = 10;
+    const windowInSeconds = 60;
+
+    const isAllowed = await rateLimiter(rateLimitKey, maxRequests, windowInSeconds);
+
+    if (!isAllowed) {
+        return NextResponse.json(
+            { message: 'Too many requests. Please try again later.' },
+            { status: 429 }
+        );
+    }
+
     let filePath = '';
     try {
         console.info('Received POST request in /api/convert');

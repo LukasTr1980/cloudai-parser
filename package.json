@@ -12,6 +12,7 @@
     "@google-cloud/documentai": "^8.10.0",
     "file-type": "^19.5.0",
     "filenamify": "^6.0.0",
+    "ioredis": "^5.4.1",
     "mime-types": "^2.1.35",
     "next": "14.2.14",
     "react": "^18",

@@ -91,10 +91,13 @@ export default function Home() {
         body: JSON.stringify({ fileName: uploadedFileName }),
       });
       if (!response.ok) {
-        throw new Error('Conversion failed');
+        const errorResponse = await response.json();
+        const errorMessage = errorResponse.message || 'Conversion failed';
+        throw new Error(errorMessage);
       }
       const result = await response.json();
       setExtractedText(result.data);
+      setErrorMessage('');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
