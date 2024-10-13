@@ -1,0 +1,1 @@
+An app to extract Text from PDFs and Images.
