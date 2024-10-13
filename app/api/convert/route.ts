@@ -77,22 +77,19 @@ async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<st
     const projectId = process.env.PROJECT_ID;
     const location = process.env.LOCATION;
     const processorId = process.env.PROCESSOR_ID;
-    const keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
     console.info('Project ID:', projectId);
     console.info('Location:', location);
     console.info('Processor ID:', processorId);
-    console.info('Key Filename:', keyFilename);
     console.info('API Endpoint:', `${location}-documentai.googleapis.com`);
 
 
-    if (!projectId || !location || !processorId || !keyFilename) {
+    if (!projectId || !location || !processorId) {
         console.error('Missing required environment variables');
         throw new Error('Missing required environment variables');
     }
 
     const client = new DocumentProcessorServiceClient({
-        keyFilename: path.join(process.cwd(), keyFilename),
         apiEndpoint: `${location}-documentai.googleapis.com`,
     });
 
