@@ -5,12 +5,16 @@ import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
 import mime from 'mime-types';
 import { rateLimiter } from "@/app/utils/rateLimiter";
 
+function isNodeJsErrnoException(error: Error): error is NodeJS.ErrnoException {
+    return 'code' in error;
+}
+
 export async function POST(request: NextRequest) {
-    const ip = 
-    request.headers.get('x-forwarded-for') ||
-    request.headers.get('x-real-ip') ||
-    request.ip ||
-    'Unknown';
+    const ip =
+        request.headers.get('x-forwarded-for') ||
+        request.headers.get('x-real-ip') ||
+        request.ip ||
+        'Unknown';
 
     const rateLimitKey = `cloud_ai_parser_rate_limit:${ip}`;
 
@@ -52,20 +56,28 @@ export async function POST(request: NextRequest) {
         const mimeType = mime.lookup(filePath) || 'application/octet-stream';
         console.info('Determined MIME type:', mimeType);
 
-        const exctractedText = await processDocument(fileBuffer, mimeType);
+        const extractedText = await processDocument(fileBuffer, mimeType);
         console.info('Extracted text from document successfully');
 
-        return NextResponse.json({ message: 'Conversion successful', data: exctractedText }, { status: 200 });
-    } catch (error) {
-        console.error('Conversion error:', error);
+        return NextResponse.json({ message: 'Conversion successful', data: extractedText }, { status: 200 });
+    } catch (error: unknown) {
+        console.error('Conversion error:', error instanceof Error ? error.stack : error);
         return NextResponse.json({ message: 'Conversion failed' }, { status: 500 });
     } finally {
         if (filePath) {
             try {
                 await fs.unlink(filePath);
                 console.info('Deleted file at path:', filePath);
-            } catch (deleteError) {
-                console.error('Error deleting file:', deleteError);
+            } catch (deleteError: unknown) {
+                if (deleteError instanceof Error) {
+                    if (isNodeJsErrnoException(deleteError) && deleteError.code === 'ENOENT') {
+                        console.warn(`File not found when attempting to delete: ${filePath}`);
+                    } else {
+                        console.error('Error deleting file:', deleteError);
+                    }
+                } else {
+                    console.error('Unknown error while deleting file');
+                }
             }
         }
     }

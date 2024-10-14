@@ -32,9 +32,13 @@ export default function Home() {
   const [extractedText, setExtractedText] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
   const [textFileName] = useState<string>('extracted_text');
+  const [isPageValidating, setIsPageValidating] = useState<boolean>(false);
+  const [conversionCompleted, setIsConversionCompleted] = useState<boolean>(false);
 
   const handleFileSelect = (file: File) => {
+    setIsPageValidating(true);
     pageValidateFile(file).then((error) => {
+      setIsPageValidating(false);
       if (error) {
         setErrorMessage(error);
         setUploadCompleted(false);
@@ -47,6 +51,7 @@ export default function Home() {
         setUploadedFileName(null);
         setSelectedFile(file);
         setExtractedText('');
+        setIsConversionCompleted(false);
       }
     });
   };
@@ -99,6 +104,7 @@ export default function Home() {
       const result = await response.json();
       setExtractedText(result.data);
       setErrorMessage('');
+      setIsConversionCompleted(true);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
@@ -119,6 +125,19 @@ export default function Home() {
       downloadTextFile({ extractedText, fileName: textFileName });
     }
   };
+
+  const handleReset = () => {
+    setSelectedFile(null);
+    setUploadedFileName(null);
+    setUploadCompleted(false);
+    setUploadProgress(0);
+    setExtractedText('');
+    setIsConversionCompleted(false);
+    setErrorMessage('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -167,11 +186,12 @@ export default function Home() {
           onFileSelect={handleFileSelect}
           fileInputRef={fileInputRef}
           isUploading={isUploading}
+          isPageValidating={isPageValidating}
         />
-        {(isUploading || uploadCompleted) && (
+        {(isUploading || (uploadCompleted && !conversionCompleted)) && (
           <div className="mt-6">
             <ProgressBar progress={uploadProgress} />
-            {uploadCompleted && (
+            {uploadCompleted && !conversionCompleted && (
               <div className="flex flex-col items-center">
                 <div className="flex items-center text-green-600 mb-4">
                   <CheckIcon className="w-6 h-6 mr-2" />
@@ -182,12 +202,12 @@ export default function Home() {
                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
                             disabled:bg-gray-400 "
                   onClick={handleConvert}
-                  disabled={isConverting}
+                  disabled={isConverting || conversionCompleted}
                 >
                   <span className={isConverting ? 'invisible' : ''}>Convert to text</span>
                   {isConverting && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Spinner />
+                      <Spinner className="w-5 h-5" />
                     </div>
                   )}
                 </button>
@@ -200,12 +220,22 @@ export default function Home() {
 
       <section className="mb-8">
         {extractedText && (
-          <ExtractedTextSection
-            extractedText={extractedText}
-            copied={copied}
-            handleCopy={handleCopy}
-            handleDownload={handleDownload}
-          />
+          <>
+            <ExtractedTextSection
+              extractedText={extractedText}
+              copied={copied}
+              handleCopy={handleCopy}
+              handleDownload={handleDownload}
+            />
+            <div className="flex justify-center mt-4">
+              <button
+                className="px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                onClick={handleReset}
+              >
+                Upload another File
+              </button>
+            </div>
+          </>
         )}
       </section>
     </div>

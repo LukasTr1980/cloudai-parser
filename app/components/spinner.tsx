@@ -1,8 +1,8 @@
-export default function Spinner() {
+export default function Spinner({ className = '' }) {
     return (
-        <div className="flex left-2">
+        <div className="flex">
             <div
-            className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500 border-t-transparent"
+            className={`animate-spin rounded-full border-t-2 border-b-2 border-blue-500 border-t-transparent ${className}`}
             role="status"
             aria-label="Loading"
             />

@@ -16,6 +16,7 @@ export interface FileUploadAreaProps {
     onFileSelect: (file: File) => void;
     fileInputRef: RefObject<HTMLInputElement>;
     isUploading: boolean;
+    isPageValidating: boolean;
 }
 
 export interface ClipBoardUitlsProps {

@@ -3,12 +3,14 @@
 import { FileUploadAreaProps } from "../types";
 import React, { useState } from "react";
 import { IMGIcon, PDFIcon } from "./icons";
+import Spinner from "./spinner";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
     onFileSelect,
     fileInputRef,
-    isUploading
+    isUploading,
+    isPageValidating,
 }) => {
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
     const [, setDragCounter] = useState<number>(0);
@@ -18,7 +20,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
+        if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
             onFileSelect(file);
         }
@@ -27,7 +29,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!isUploading) {
+        if (!isUploading && !isPageValidating) {
             setDragCounter(prevCounter => {
                 const newCounter = prevCounter + 1;
                 if (newCounter > 0) {
@@ -70,15 +72,15 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     return (
         <>
             <div
-                className={`w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
+                className={`relative w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
                     p-16 flex flex-col items-center justify-center mb-4 cursor-pointer transition-all duration-200 
-                    ${isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
+                    ${isUploading || isPageValidating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
                     ${isDragOver ? 'bg-gray-50' : ''}`}
-                onClick={!isUploading ? handleClick : undefined}
+                onClick={!isUploading && !isPageValidating ? handleClick : undefined}
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                onDrop={!isUploading ? handleDrop : undefined}
+                onDrop={!isUploading && !isPageValidating ? handleDrop : undefined}
             >
                 <div className="flex items-center justify-between space-x-8 mb-4">
                     <PDFIcon
@@ -99,6 +101,12 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                         <span className="font-semibold">{selectedFile.name}</span>
                         {' '}({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
                     </p>
+                )}
+                {isPageValidating && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75">
+                        <p className="text-xl font-semibold mb-4">Preprocessing File</p>
+                        <Spinner className="w-16 h-16" />
+                    </div>
                 )}
             </div>
             <input
