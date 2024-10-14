@@ -116,7 +116,6 @@ async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<st
             throw new Error('No text extracted from document');
         }
 
-        console.info('Document text extracted successfully');
         return document.text;
     } catch (error: unknown) {
         if (error instanceof Error) {

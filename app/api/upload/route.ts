@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
-    console.info('Validating file');
     const validationResult = await apiValidateFile(file);
     if (!validationResult.valid) {
         console.warn('File validation failed:', validationResult.message);
