@@ -15,7 +15,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Cloud AI Parser",
-  description: "Convert Images or PDFs to text",
+  description: "Extract text from PDFs and images using the power of AI and OCR.",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
         <div className="flex flex-grow justify-center">
-          <div className="w-full max-w-5xl mx-2 mt-6">
+          <div className="w-full max-w-5xl mx-2">
             {children}
           </div>
         </div>

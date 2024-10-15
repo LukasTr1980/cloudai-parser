@@ -140,45 +140,8 @@ export default function Home() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 py-4">
       <Header />
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <FeatureCard
-          icon={<UploadIcon className="w-12 h-12 text-blue-500 mb-2" />}
-          title="Upload Files"
-          description={
-            <>
-              Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}<strong>15 pages</strong>.
-            </>
-          }
-        />
-        <FeatureCard
-          icon={<LanguageIcon className="w-12 h-12 text-green-500 mb-2" />}
-          title="200+ Languages"
-          description="Supports over 200 languages for text extraction."
-        />
-        <FeatureCard
-          icon={<PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />}
-          title="Privacy First"
-          description="Files are deleted immediately after processing. Your data stays private."
-        />
-        <FeatureCard
-          icon={<OpenSourceIcon className="w-12 h-12 text-yellow-500 mb-2" />}
-          title="Open Source"
-          description={
-            <>
-              View the project on{' '}
-              <a
-                href="https://github.com/LukasTr1980/cloudai-parser"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline">
-                Github
-              </a>.
-            </>
-          }
-        />
-      </section>
 
       <section className="mb-8">
         <FileUploadArea
@@ -238,6 +201,45 @@ export default function Home() {
           </>
         )}
       </section>
+
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <FeatureCard
+          icon={<UploadIcon className="w-12 h-12 text-blue-500 mb-2" />}
+          title="Upload Files"
+          description={
+            <>
+              Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}<strong>15 pages</strong>.
+            </>
+          }
+        />
+        <FeatureCard
+          icon={<LanguageIcon className="w-12 h-12 text-green-500 mb-2" />}
+          title="200+ Languages"
+          description="Supports over 200 languages for text extraction."
+        />
+        <FeatureCard
+          icon={<PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />}
+          title="Privacy First"
+          description="Files are deleted immediately after processing. Your data stays private."
+        />
+        <FeatureCard
+          icon={<OpenSourceIcon className="w-12 h-12 text-yellow-500 mb-2" />}
+          title="Open Source"
+          description={
+            <>
+              View the project on{' '}
+              <a
+                href="https://github.com/LukasTr1980/cloudai-parser"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline">
+                Github
+              </a>.
+            </>
+          }
+        />
+      </section>
+
     </div>
   );
 }

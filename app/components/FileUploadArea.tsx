@@ -4,6 +4,7 @@ import { FileUploadAreaProps } from "../types";
 import React, { useState } from "react";
 import { IMGIcon, PDFIcon } from "./icons";
 import Spinner from "./spinner";
+import { truncateFileName } from "../utils/stringUtils";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
@@ -73,7 +74,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         <>
             <div
                 className={`relative w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
-                    p-16 flex flex-col items-center justify-center mb-4 cursor-pointer transition-all duration-200 
+                    p-6 flex flex-col items-center justify-center mb-4 cursor-pointer transition-all duration-200 
                     ${isUploading || isPageValidating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
                     ${isDragOver ? 'bg-gray-50' : ''}`}
                 onClick={!isUploading && !isPageValidating ? handleClick : undefined}
@@ -98,7 +99,9 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 {selectedFile && (
                     <p className="mt-4 text-gray-700 text-center">
                         Selected file:{' '}
-                        <span className="font-semibold">{selectedFile.name}</span>
+                        <span className="font-semibold break-all">
+                            {truncateFileName(selectedFile.name, 50)}
+                        </span>
                         {' '}({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
                     </p>
                 )}
