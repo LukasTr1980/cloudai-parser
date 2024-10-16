@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     const isAllowed = await rateLimiter(rateLimitKey, maxRequests, windowInSeconds);
 
     if (!isAllowed) {
+        console.warn('Rate limit exceeded in route convert for IP:', ip);
         return NextResponse.json(
             { message: 'Too many requests. Please try again later.' },
             { status: 429 }

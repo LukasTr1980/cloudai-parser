@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
     const isAllowed = await rateLimiter(rateLimitKey, maxRequests, windowInSeconds);
 
     if (!isAllowed) {
+        console.warn('Rate limit exceeded in route upload for IP:', ip);
         return NextResponse.json(
             { message: 'Too many requests. Please try again later.' },
             { status: 429 }
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
     const origin = req.headers.get('origin');
     const allowedOrigins = ['https://cloudai-parser.charts.cx', 'http://localhost:3000'];
     if (!origin || !allowedOrigins.includes(origin)) {
+        console.warn('Invalid origin in route upload:', origin)
         return NextResponse.json({ message: 'Invalid origin' }, { status: 403 });
     }
 
@@ -37,6 +39,7 @@ export async function POST(req: NextRequest) {
     const cookieToken = req.cookies.get('api_token');
 
     if (!apiToken || !cookieToken || apiToken !== cookieToken.value) {
+        console.warn('API token mismatch or missing in route upload');
         return NextResponse.json({ message: 'Invalid api token' }, { status: 403 });
     }
 
