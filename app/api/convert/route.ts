@@ -9,11 +9,11 @@ function isNodeJsErrnoException(error: Error): error is NodeJS.ErrnoException {
     return 'code' in error;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
     const ip =
-        request.headers.get('x-forwarded-for') ||
-        request.headers.get('x-real-ip') ||
-        request.ip ||
+        req.headers.get('x-forwarded-for') ||
+        req.headers.get('x-real-ip') ||
+        req.ip ||
         'Unknown';
 
     const rateLimitKey = `cloud_ai_parser_rate_limit:${ip}`;
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     let filePath = '';
     try {
         console.info('Received POST request in /api/convert');
-        const { fileName } = await request.json();
+        const { fileName } = await req.json();
         console.info('Parsed request body:', { fileName });
         if (!fileName) {
             console.error('File name is missing');

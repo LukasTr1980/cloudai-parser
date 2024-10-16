@@ -19,6 +19,7 @@ import FeatureCard from "./components/FeatureCard";
 import ProgressBar from "./components/ProgressBar";
 import ErrorMessage from "./components/ErrorMessage";
 import ExtractedTextSection from "./components/ExtractedTextSection";
+import { logEvent } from "./utils/logger";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -127,6 +128,8 @@ export default function Home() {
   };
 
   const handleReset = () => {
+    logEvent('button_click', { buttonName: 'uploadAnotherFile', action: 'User Uploaded another File' });
+
     setSelectedFile(null);
     setUploadedFileName(null);
     setUploadCompleted(false);

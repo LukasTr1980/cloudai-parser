@@ -6,11 +6,11 @@ import { generateUUID } from "@/app/utils/uuid";
 import { rateLimiter } from "@/app/utils/rateLimiter";
 
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
     const ip = 
-    request.headers.get('x-forwarded-for') ||
-    request.headers.get('x-real-ip') ||
-    request.ip ||
+    req.headers.get('x-forwarded-for') ||
+    req.headers.get('x-real-ip') ||
+    req.ip ||
     'Unknown';
 
     const rateLimitKey = `cloud_ai_parser_rate_limit:${ip}`;
@@ -27,9 +27,22 @@ export async function POST(request: NextRequest) {
         );
     }
 
+    const origin = req.headers.get('origin');
+    const allowedOrigins = ['https://cloudai-parser.charts.cx', 'http://localhost:3000'];
+    if (!origin || !allowedOrigins.includes(origin)) {
+        return NextResponse.json({ message: 'Invalid origin' }, { status: 403 });
+    }
+
+    const apiToken = req.headers.get('X-Api-Token');
+    const cookieToken = req.cookies.get('api_token');
+
+    if (!apiToken || !cookieToken || apiToken !== cookieToken.value) {
+        return NextResponse.json({ message: 'Invalid api token' }, { status: 403 });
+    }
+
     console.info('Received a file upload request');
 
-    const formData = await request.formData();
+    const formData = await req.formData();
     const file = formData.get('file') as File;
 
     const validationResult = await apiValidateFile(file);

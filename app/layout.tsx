@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { cookies } from "next/headers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -23,6 +24,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const apiToken = cookieStore.get('api_token')?.value || '';
+
   return (
     <html lang="en">
       <body
@@ -31,6 +35,11 @@ export default function RootLayout({
         <div className="flex flex-grow justify-center">
           <div className="w-full max-w-5xl mx-2">
             {children}
+            <script
+            dangerouslySetInnerHTML={{
+              __html: `window.API_TOKEN = '${apiToken}';`,
+            }}
+            />
           </div>
         </div>
         <footer className="text-center text-gray-500 text-sm py-4">

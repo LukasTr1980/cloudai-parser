@@ -39,6 +39,8 @@ export async function uploadFile(
         };
 
         xhr.open('POST', '/api/upload');
+        xhr.withCredentials = true;
+        xhr.setRequestHeader('X-Api-Token', window.API_TOKEN);
         xhr.send(formData);
     });
 }

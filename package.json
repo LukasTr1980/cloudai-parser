@@ -13,11 +13,13 @@
     "file-type": "^19.5.0",
     "filenamify": "^6.0.0",
     "ioredis": "^5.4.1",
+    "joi": "^17.13.3",
     "mime-types": "^2.1.35",
     "next": "14.2.14",
     "pdfjs-dist": "^4.7.76",
     "react": "^18",
     "react-dom": "^18",
+    "sanitize-html": "^2.13.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
@@ -25,6 +27,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/sanitize-html": "^2.13.0",
     "@types/uuid": "^10.0.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.14",
