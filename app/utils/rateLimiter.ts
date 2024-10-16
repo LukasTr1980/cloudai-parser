@@ -6,6 +6,11 @@ export async function rateLimiter(
     windowInSeconds: number
 ): Promise<boolean> {
     try {
+        if (redis.status !== 'ready') {
+            console.error('Redis client is not connected or ready');
+            return false;
+        }
+
         const requests = await redis.incr(key);
         if (requests === 1) {
             await redis.expire(key, windowInSeconds);

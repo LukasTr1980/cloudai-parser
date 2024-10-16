@@ -63,9 +63,7 @@ export async function POST(req: NextRequest) {
         const sanitizedEventData = sanitizeObject(eventData) as Record<string, unknown>;
 
         console.info(JSON.stringify({
-            message: 'Frontend Log',
-            sanitizedEventType,
-            sanitizedEventData,
+            message: `Frontend Log: sanitizedEventType=${sanitizedEventType}, sanitizedEventData=${JSON.stringify(sanitizedEventData)}`,
         }));
 
         return NextResponse.json({ message: 'Log received' }, { status: 200 });
