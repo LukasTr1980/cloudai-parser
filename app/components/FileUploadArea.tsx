@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { IMGIcon, PDFIcon } from "./icons";
 import Spinner from "./spinner";
 import { truncateFileName } from "../utils/stringUtils";
+import { logEvent } from "../utils/logger";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
@@ -17,12 +18,20 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     const [, setDragCounter] = useState<number>(0);
 
     const handleClick = () => {
+        logEvent('file_upload_click', { action: 'User clicked to select a file' });
         fileInputRef.current?.click();
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
+
+            logEvent('file_selected', {
+                action: 'User selected a file via file input',
+                fileType: file.type,
+                fileSizeMB: (file.size / (1024 * 1024)).toFixed(2),
+            })
+
             onFileSelect(file);
         }
     };
@@ -35,6 +44,8 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 const newCounter = prevCounter + 1;
                 if (newCounter > 0) {
                     setIsDragOver(true);
+                    
+                    logEvent('drag_enter', { action: 'User started dragging a file over the upload area' });
                 }
                 return newCounter;
             })
@@ -48,6 +59,8 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
             const newCounter = prevCounter - 1;
             if (newCounter === 0) {
                 setIsDragOver(false);
+
+                logEvent('drag_leave', { action: 'User dragged a file away from the upload area' });
             }
             return newCounter;
         })
@@ -64,7 +77,14 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         setIsDragOver(false);
         setDragCounter(0);
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0]
+            const file = e.dataTransfer.files[0];
+
+            logEvent('file_dropped', {
+                action: 'User dropped a file into the upload area',
+                fileType: file.type,
+                fileSizeMB: (file.size / (1024 * 1024)).toFixed(2),
+            });
+
             onFileSelect(file);
             e.dataTransfer.clearData();
         }

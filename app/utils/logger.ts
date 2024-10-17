@@ -8,9 +8,21 @@ declare global {
 
 export async function logEvent(eventType: string, eventData: Record<string, unknown>): Promise<void> {
     try {
+        const screenSize = {
+            width: window.innerWidth || null,
+            height: window.innerHeight || null,
+        };
+
+        const extendedEventData = {
+            ...eventData,
+            screenSize,
+            userAgent: navigator.userAgent || null,
+            referrer: document.referrer || null,
+        };
+
         const body = JSON.stringify({
             eventType,
-            eventData,
+            eventData: extendedEventData,
         });
 
         await fetch('/api/log', {

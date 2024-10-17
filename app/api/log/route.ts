@@ -5,17 +5,16 @@ import { sanitizeObject } from "@/app/utils/sanitizeHtml";
 
 export async function POST(req: NextRequest) {
     const ip =
-        req.headers.get('x-forwarded-for') ||
+        req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
         req.headers.get('x-real-ip') ||
         req.ip ||
         'Unknown';
 
-    const rateLimitKey = `cloud_ai_parser_rate_limit:${ip}`
-
-    const maxRequests = 100;
+    const namespace = 'log';
+    const maxRequests = 500;
     const windowInSeconds = 60;
 
-    const isAllowed = await rateLimiter(rateLimitKey, maxRequests, windowInSeconds);
+    const isAllowed = await rateLimiter(namespace, ip, maxRequests, windowInSeconds);
 
     if (!isAllowed) {
         console.warn('Rate limit exceeded in route log for IP:', ip);
@@ -44,7 +43,19 @@ export async function POST(req: NextRequest) {
 
         const schema = Joi.object({
             eventType: Joi.string().trim().max(100).required(),
-            eventData: Joi.object().max(10).required(),
+            eventData: Joi.object({
+                buttonName: Joi.string().max(100).optional(),
+                action: Joi.string().max(200).optional(),
+                screenSize: Joi.object({
+                    width: Joi.number().allow(null),
+                    height: Joi.number().allow(null),
+                }).optional(),
+                userAgent: Joi.string().optional().allow(null),
+                referrer: Joi.string().optional().allow(null),
+                fileType: Joi.string().optional(),
+                fileSizeMB: Joi.string().optional(),
+                textLength: Joi.number().optional(),
+            }).unknown(true),
         });
 
         const { error, value } = schema.validate(logData, { stripUnknown: true });
@@ -62,8 +73,15 @@ export async function POST(req: NextRequest) {
         const sanitizedEventType = sanitizeObject(eventType) as string;
         const sanitizedEventData = sanitizeObject(eventData) as Record<string, unknown>;
 
+        const logEntry = {
+            ip,
+            sanitizedEventType,
+            sanitizedEventData,
+        };
+
         console.info(JSON.stringify({
-            message: `Frontend Log: sanitizedEventType=${sanitizedEventType}, sanitizedEventData=${JSON.stringify(sanitizedEventData)}`,
+            message: 'Frontend Log',
+            ...logEntry,
         }));
 
         return NextResponse.json({ message: 'Log received' }, { status: 200 });

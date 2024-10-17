@@ -90,6 +90,8 @@ export default function Home() {
       setErrorMessage('No file to convert');
       return;
     }
+
+    logEvent('button_click', { buttonName: 'Convert to Text', action: 'User clicked to convert the uploaded file', fileName: uploadedFileName });
     setIsConverting(true);
     try {
       const response = await fetch('/api/convert', {
@@ -119,16 +121,18 @@ export default function Home() {
 
   const handleCopy = () => {
     handleCopyToClipboard({ extractedText, setCopied });
+    logEvent('button_click', { buttonName: 'Copy', action: 'User copied extracted text to clipboard', textLength: extractedText.length });
   };
 
   const handleDownload = () => {
     if (extractedText) {
       downloadTextFile({ extractedText, fileName: textFileName });
+      logEvent('button_click', { buttonName: 'Download', action: 'User downloaded extracted text', textLength: extractedText.length });
     }
   };
 
   const handleReset = () => {
-    logEvent('button_click', { buttonName: 'uploadAnotherFile', action: 'User Uploaded another File' });
+    logEvent('button_click', { buttonName: 'Upload another file', action: 'User Uploaded another File' });
 
     setSelectedFile(null);
     setUploadedFileName(null);
@@ -140,7 +144,18 @@ export default function Home() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  }
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  useEffect(() => {
+    logEvent('page_load', {
+      action: 'User loaded home page',
+    });
+  }, []);
 
   return (
     <div className="container mx-auto px-2 py-4">

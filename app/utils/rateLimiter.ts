@@ -1,27 +1,24 @@
-import redis from "./redisClient";
+import { getRedisClient } from "./redisClient";
 
 export async function rateLimiter(
-    key: string,
+    namespace: string,
+    ip: string,
     maxRequests: number,
     windowInSeconds: number
 ): Promise<boolean> {
     try {
-        if (redis.status !== 'ready') {
-            console.error('Redis client is not connected or ready');
-            return false;
-        }
+        const redis = await getRedisClient();
+
+        const key = `cloudai_rate_limit:${namespace}:${ip}`;
 
         const requests = await redis.incr(key);
         if (requests === 1) {
             await redis.expire(key, windowInSeconds);
         }
 
-        if (requests > maxRequests) {
-            return false;
-        }
-        return true;
+        return requests <= maxRequests;
     } catch (error) {
         console.error('Redis error in rateLimiter:', error);
-        return false;        
+        return false;
     }
 }

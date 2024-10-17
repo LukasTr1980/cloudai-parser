@@ -8,17 +8,16 @@ import { rateLimiter } from "@/app/utils/rateLimiter";
 
 export async function POST(req: NextRequest) {
     const ip = 
-    req.headers.get('x-forwarded-for') ||
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     req.headers.get('x-real-ip') ||
     req.ip ||
     'Unknown';
 
-    const rateLimitKey = `cloud_ai_parser_rate_limit:${ip}`;
-
+    const namespace = 'upload';
     const maxRequests = 10;
     const windowInSeconds = 60;
 
-    const isAllowed = await rateLimiter(rateLimitKey, maxRequests, windowInSeconds);
+    const isAllowed = await rateLimiter(namespace, ip, maxRequests, windowInSeconds);
 
     if (!isAllowed) {
         console.warn('Rate limit exceeded in route upload for IP:', ip);
