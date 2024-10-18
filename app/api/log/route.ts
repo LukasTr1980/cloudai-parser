@@ -55,6 +55,8 @@ export async function POST(req: NextRequest) {
                 fileType: Joi.string().optional(),
                 fileSizeMB: Joi.string().optional(),
                 textLength: Joi.number().optional(),
+                timeZone: Joi.string().optional(),
+                language: Joi.string().optional(),
             }).unknown(true),
         });
 

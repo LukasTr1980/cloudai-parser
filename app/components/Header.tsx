@@ -1,12 +1,19 @@
+import Link from "next/link";
+import Image from "next/image";
+
 const Header = () => (
-    <header className="text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-4">Cloud AI Parser</h1>
-        <p className="text-lg text-gray-600 mb-2">
-            Extract text from PDFs and images using the power of <strong>AI</strong> and <strong>OCR</strong>.
-        </p>
-        <p className="text-lg text-gray-600">
-            For example, copy the extracted Text and paste it into a <strong>ChatBot</strong> to ask questions and gain insights.
-        </p>
+    <header className="bg-gray-900 text-white shadow-md ">
+        <div className="container mx-auto flex items-center px-4">
+            <Link href="/" className="flex items-center space-x-1">
+                <Image
+                src="/images/logo-original.svg"
+                width={150}
+                height={75}
+                alt="Logo"
+                />
+                <span className=" text-3xl font-extrabold tracking-wide">Tech</span>
+            </Link>
+        </div>
     </header>
 )
 

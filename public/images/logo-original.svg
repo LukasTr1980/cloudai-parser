@@ -1,0 +1,36 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 200 100"
+    preserveAspectRatio="xMidYMid meet"
+>
+    <defs>
+        <linearGradient id="techGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00FFFF" stop-opacity="1" />
+            <stop offset="50%" stop-color="#FF00FF" stop-opacity="1" />
+            <stop offset="100%" stop-color="#FFFF00" stop-opacity="1" />
+        </linearGradient>
+
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+            <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+    </defs>
+
+    <text
+        x="50%"
+        y="55%"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        font-family="Verdana"
+        font-size="80"
+        fill="url(#techGradient)"
+        filter="url(#glow)"
+    >
+        TLX
+    </text>
+</svg>

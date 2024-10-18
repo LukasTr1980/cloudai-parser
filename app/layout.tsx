@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { cookies } from "next/headers";
+import Header from "./components/Header";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,13 +33,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
+        <Header />
+
+        <hr className="border-t border-gray-300" />
+
         <div className="flex flex-grow justify-center">
           <div className="w-full max-w-5xl mx-2">
             {children}
             <script
-            dangerouslySetInnerHTML={{
-              __html: `window.API_TOKEN = '${apiToken}';`,
-            }}
+              dangerouslySetInnerHTML={{
+                __html: `window.API_TOKEN = '${apiToken}';`,
+              }}
             />
           </div>
         </div>

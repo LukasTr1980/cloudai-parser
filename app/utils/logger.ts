@@ -13,11 +13,16 @@ export async function logEvent(eventType: string, eventData: Record<string, unkn
             height: window.innerHeight || null,
         };
 
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const language = navigator.language || navigator.language?.[0] || 'unknown';
+
         const extendedEventData = {
             ...eventData,
             screenSize,
             userAgent: navigator.userAgent || null,
             referrer: document.referrer || null,
+            timeZone,
+            language,
         };
 
         const body = JSON.stringify({

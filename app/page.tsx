@@ -14,7 +14,6 @@ import {
   OpenSourceIcon,
 } from "./components/icons";
 import Spinner from "./components/spinner";
-import Header from "./components/Header";
 import FeatureCard from "./components/FeatureCard";
 import ProgressBar from "./components/ProgressBar";
 import ErrorMessage from "./components/ErrorMessage";
@@ -159,7 +158,15 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-2 py-4">
-      <Header />
+
+      <section className="mb-6">
+        <div className="bg-blue-100 text-blue-800 px-4 py-3 rounded-md">
+          <p className="text-sm">
+            <strong>Cloud AI Parser</strong> allows you to effortlessly extract searchable text from images and PDF documents.
+            Supporting over <strong>200 languages</strong>, our tool ensures <strong>100% privacy compliance</strong>.
+          </p>
+        </div>
+      </section>
 
       <section className="mb-8">
         <FileUploadArea
@@ -250,7 +257,12 @@ export default function Home() {
                 href="https://github.com/LukasTr1980/cloudai-parser"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 underline">
+                className="text-blue-500 underline"
+                onClick={() => logEvent('link_click', {
+                  buttonName: 'Github Link',
+                  action: 'User clicked the Open Source Link'
+                })}
+              >
                 Github
               </a>.
             </>
