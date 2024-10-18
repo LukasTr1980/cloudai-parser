@@ -162,7 +162,7 @@ export default function Home() {
       <section className="mb-6">
         <div className="bg-blue-100 text-blue-800 px-4 py-3 rounded-md">
           <p className="text-sm">
-            <strong>Cloud AI Parser</strong> allows you to effortlessly extract searchable text from images and PDF documents.
+            <strong>Cloud AI Parser</strong> allows you to effortlessly extract searchable text from images and scanned PDF documents.
             Supporting over <strong>200 languages</strong>, our tool ensures <strong>100% privacy compliance</strong>.
           </p>
         </div>
