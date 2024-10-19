@@ -15,5 +15,6 @@ const config: Config = {
     },
   },
   plugins: [],
+  safelist: Array.from({ length: 21 }, (_, i) => `w-[${i * 5}%]`),
 };
 export default config;

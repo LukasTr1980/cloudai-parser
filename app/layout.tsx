@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Cloud AI Parser",
+  title: "TLX Tech",
   description: "Extract text from PDFs and images using the power of AI and OCR.",
 };
 
