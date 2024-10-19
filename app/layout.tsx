@@ -30,6 +30,13 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <script
+          src='https://charts.cx/cdn/setApiToken.js'
+          data-api-token={apiToken}
+          defer
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
@@ -40,11 +47,6 @@ export default function RootLayout({
         <div className="flex flex-grow justify-center">
           <div className="w-full max-w-5xl mx-2">
             {children}
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.API_TOKEN = '${apiToken}';`,
-              }}
-            />
           </div>
         </div>
         <footer className="text-center text-gray-500 text-sm py-4">
