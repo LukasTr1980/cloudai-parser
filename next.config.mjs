@@ -19,7 +19,7 @@ const ContentSecurityPolicyDev = `
 
 const ContentSecurityPolicyProd = `
     default-src 'self';
-    script-src 'self' ${CDN_DOMAIN};
+    script-src 'self' 'unsafe-inline' ${CDN_DOMAIN};
     worker-src 'self' ${CDN_DOMAIN};
     style-src 'self' 'unsafe-inline' ${CDN_DOMAIN};
     img-src 'self' blob: data ${CDN_DOMAIN};
