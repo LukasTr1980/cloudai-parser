@@ -62,7 +62,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: 'Conversion successful', data: extractedText }, { status: 200 });
     } catch (error: unknown) {
         console.error('Conversion error:', error instanceof Error ? error.stack : error);
-        return NextResponse.json({ message: 'Conversion failed' }, { status: 500 });
+
+        const errorMessage = error instanceof Error ? error.message : 'Conversion failed';
+        return NextResponse.json({ message: errorMessage }, { status: 500 });
     } finally {
         if (filePath) {
             try {
@@ -132,6 +134,7 @@ async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<st
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error('Document AI processing error:', error.message);
+            throw new Error(error.message);
         } else {
             console.error('Document AI processing error:', error);
 

@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
                 textLength: Joi.number().optional(),
                 timeZone: Joi.string().optional(),
                 language: Joi.string().optional(),
+                numPage: Joi.number().optional(),
             }).unknown(true),
         });
 
