@@ -6,7 +6,7 @@ const CDN_DOMAIN = 'https://charts.cx';
 const ContentSecurityPolicyDev = `
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval' ${CDN_DOMAIN};
-    worker-src 'self' ${CDN_DOMAIN};
+    worker-src 'self' blob:;
     style-src 'self' 'unsafe-inline' ${CDN_DOMAIN};
     img-src 'self' blob: data ${CDN_DOMAIN};
     connect-src 'self' ws: ${CDN_DOMAIN};
@@ -19,8 +19,8 @@ const ContentSecurityPolicyDev = `
 
 const ContentSecurityPolicyProd = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' ${CDN_DOMAIN};
-    worker-src 'self' ${CDN_DOMAIN};
+    script-src 'self' ${CDN_DOMAIN};
+    worker-src 'self' blob:;
     style-src 'self' 'unsafe-inline' ${CDN_DOMAIN};
     img-src 'self' blob: data ${CDN_DOMAIN};
     connect-src 'self' ${CDN_DOMAIN};

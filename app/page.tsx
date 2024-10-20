@@ -30,6 +30,7 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
   const [extractedText, setExtractedText] = useState<string>('');
+  const extractedTextRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [textFileName] = useState<string>('extracted_text');
   const [isPageValidating, setIsPageValidating] = useState<boolean>(false);
@@ -156,6 +157,12 @@ export default function Home() {
     });
   }, []);
 
+  useEffect(() => {
+    if (extractedText && extractedTextRef.current) {
+      extractedTextRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [extractedText]);
+
   return (
     <div className="container mx-auto px-2 py-4">
 
@@ -209,19 +216,21 @@ export default function Home() {
       <section className="mb-8">
         {extractedText && (
           <>
-            <ExtractedTextSection
-              extractedText={extractedText}
-              copied={copied}
-              handleCopy={handleCopy}
-              handleDownload={handleDownload}
-            />
-            <div className="flex justify-center mt-4">
-              <button
-                className="px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
-                onClick={handleReset}
-              >
-                Upload another File
-              </button>
+            <div ref={extractedTextRef}>
+              <ExtractedTextSection
+                extractedText={extractedText}
+                copied={copied}
+                handleCopy={handleCopy}
+                handleDownload={handleDownload}
+              />
+              <div className="flex justify-center mt-4">
+                <button
+                  className="px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                  onClick={handleReset}
+                >
+                  Upload another File
+                </button>
+              </div>
             </div>
           </>
         )}
