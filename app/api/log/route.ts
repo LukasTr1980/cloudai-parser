@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         };
 
         console.info(JSON.stringify({
-            message: 'Frontend Log',
+            message: `Frontend Log ${ip}`,
             ...logEntry,
         }));
 

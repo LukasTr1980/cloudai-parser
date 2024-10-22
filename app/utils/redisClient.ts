@@ -1,9 +1,10 @@
 import Redis from "ioredis";
+import { readSecretOrEnvVar } from "./readSecretOrEnvVar";
 
 let redis: Redis | null = null;
 let redisReadyPromise: Promise<Redis> | null = null;
 
-export function getRedisClient(timeout = 5000): Promise<Redis> {
+export async function getRedisClient(timeout = 5000): Promise<Redis> {
     if (redis) {
         if (redis.status === 'ready') {
             return Promise.resolve(redis);
@@ -12,7 +13,8 @@ export function getRedisClient(timeout = 5000): Promise<Redis> {
         }
     }
 
-    const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
+    const { REDIS_HOST, REDIS_PORT } = process.env;
+    const REDIS_PASSWORD = await readSecretOrEnvVar('redis_password', 'REDIS_PASSWORD');
 
     if (!REDIS_HOST || !REDIS_PORT) {
         console.error('Redis configuration error: REDIS_HOST and REDIS_PORT must be set');

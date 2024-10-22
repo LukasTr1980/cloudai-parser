@@ -4,10 +4,7 @@ import { promises as fs } from 'fs';
 import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
 import mime from 'mime-types';
 import { rateLimiter } from "@/app/utils/rateLimiter";
-
-function isNodeJsErrnoException(error: Error): error is NodeJS.ErrnoException {
-    return 'code' in error;
-}
+import { readSecretOrEnvVar, isNodeJsErrnoException } from "@/app/utils/readSecretOrEnvVar";
 
 export async function POST(req: NextRequest) {
     const ip =
@@ -61,24 +58,26 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ message: 'Conversion successful', data: extractedText }, { status: 200 });
     } catch (error: unknown) {
-        console.error('Conversion error:', error instanceof Error ? error.stack : error);
-
-        const errorMessage = error instanceof Error ? error.message : 'Conversion failed';
-        return NextResponse.json({ message: errorMessage }, { status: 500 });
+        if (error instanceof Error) {
+            console.error('Conversion error:', error.stack);
+            const errorMessage = error.message;
+            return NextResponse.json({ message: errorMessage }, { status: 500 });
+        } else {
+            console.error('Unknown conversion error:', error);
+            return NextResponse.json({ message: 'Conversion failed' }, { status: 500 });
+        }
     } finally {
         if (filePath) {
             try {
                 await fs.unlink(filePath);
                 console.info('Deleted file at path:', filePath);
             } catch (deleteError: unknown) {
-                if (deleteError instanceof Error) {
-                    if (isNodeJsErrnoException(deleteError) && deleteError.code === 'ENOENT') {
-                        console.warn(`File not found when attempting to delete: ${filePath}`);
-                    } else {
-                        console.error('Error deleting file:', deleteError);
-                    }
+                if (isNodeJsErrnoException(deleteError) && deleteError.code === 'ENOENT') {
+                    console.warn(`File not found when attempting to delete: ${filePath}`);
+                } else if (deleteError instanceof Error) {
+                    console.error('Error deleting file:', deleteError);
                 } else {
-                    console.error('Unknown error while deleting file');
+                    console.error('Unknown error while deleting file.');
                 }
             }
         }
@@ -88,9 +87,9 @@ export async function POST(req: NextRequest) {
 async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<string> {
     console.info('Starting document processing');
 
-    const projectId = process.env.PROJECT_ID;
+    const projectId = await readSecretOrEnvVar('google_project_id', 'PROJECT_ID');
     const location = process.env.LOCATION;
-    const processorId = process.env.PROCESSOR_ID;
+    const processorId = await readSecretOrEnvVar('google_processor_id', 'PROCESSOR_ID');
 
     console.info('Project ID:', projectId);
     console.info('Location:', location);
@@ -137,9 +136,8 @@ async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<st
             throw new Error(error.message);
         } else {
             console.error('Document AI processing error:', error);
-
+            throw new Error('Failed to process document with Document AI');
         }
-        throw new Error('Failed to process document with Document AI');
     }
 }
 
