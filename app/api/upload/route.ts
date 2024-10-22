@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     const origin = req.headers.get('origin');
-    const allowedOrigins = ['https://tlx.page', 'http://localhost:3000'];
+    const allowedOrigins = ['https://tlx.page', 'https://blue.tlx.page', 'https://green.tlx.page', 'http://localhost:3000'];
     if (!origin || !allowedOrigins.includes(origin)) {
         console.warn('Invalid origin in route upload:', origin)
         return NextResponse.json({ message: 'Invalid origin' }, { status: 403 });
