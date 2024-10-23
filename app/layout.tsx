@@ -18,6 +18,34 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "TLX Tech",
   description: "Extract text from PDFs and images using the power of AI and OCR.",
+  openGraph: {
+    title: "TLX Tech - AI & OCR Solutions",
+    description: "Extract text from PDFs and images using the power of AI and OCR.",
+    url: "https://tlx.page",
+    siteName: "TLX Tech",
+    images: [
+      {
+        url: "https://tlx.page/images/logo-800x400.png",
+        width: 800,
+        height: 400,
+        alt: "TLX Tech Open Graph Image",
+      },
+    ],
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -44,11 +72,11 @@ export default function RootLayout({
 
         <hr className="border-t border-gray-300" />
 
-        <div className="flex flex-grow justify-center">
+        <main className="flex flex-grow justify-center">
           <div className="w-full max-w-5xl mx-2">
             {children}
           </div>
-        </div>
+        </main>
         <footer className="text-center text-gray-500 text-sm py-4">
           {new Date().getFullYear()} Cloud AI Parser
         </footer>

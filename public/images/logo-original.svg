@@ -11,14 +11,6 @@
             <stop offset="50%" stop-color="#FF00FF" stop-opacity="1" />
             <stop offset="100%" stop-color="#FFFF00" stop-opacity="1" />
         </linearGradient>
-
-        <filter id="glow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-            <feMerge>
-                <feMergeNode in="coloredBlur" />
-                <feMergeNode in="SourceGraphic" />
-            </feMerge>
-        </filter>
     </defs>
 
     <text

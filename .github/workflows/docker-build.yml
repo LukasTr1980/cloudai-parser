@@ -23,6 +23,14 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Generate Date-Based Tag
+      id: date_tag
+      run: echo "DATE_TAG=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+    - name: Generate Build Number Tag
+      id: build_tag
+      run: echo "BUILD_TAG=build-${{ github.run_number }}" >> $GITHUB_ENV
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
       with:
@@ -30,4 +38,6 @@ jobs:
         push: true
         tags: | 
           mustaman/cloudai-parser:latest 
+          mustaman/cloudai-parser:${{ env.DATE_TAG }}
+          mustaman/cloudai-parser:${{ env.BUILD_TAG }}
           mustaman/cloudai-parser:${{ github.sha }}
