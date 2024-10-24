@@ -17,10 +17,14 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "TLX Tech",
-  description: "Extract text from PDFs and images using the power of AI and OCR.",
+  description: `TLX Tech specializes in extracting text from PDFs and images using advanced 
+  AI and OCR technologies. Our solutions help you convert visual documents into editable and 
+  searchable text, simplifying data extraction and document management processes across various industries.`,
   openGraph: {
     title: "TLX Tech - AI & OCR Solutions",
-    description: "Extract text from PDFs and images using the power of AI and OCR.",
+    description: `TLX Tech specializes in extracting text from PDFs and images using advanced 
+    AI and OCR technologies. Our solutions help you convert visual documents into editable and 
+    searchable text, simplifying data extraction and document management processes across various industries.`,
     url: "https://tlx.page",
     siteName: "TLX Tech",
     images: [

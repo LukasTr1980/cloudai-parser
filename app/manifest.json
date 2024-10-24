@@ -1,0 +1,16 @@
+{
+    "name": "TLX Tech",
+    "short_name": "TLX",
+    "icons": [
+        {
+            "src": "https://tlx.page/images/icon-maskable.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+}
