@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "TLX Tech",
     images: [
       {
-        url: "https://tlx.page/images/logo-800x400.png",
+        url: "/images/logo-800x400.png",
         width: 800,
         height: 400,
         alt: "TLX Tech Open Graph Image",
@@ -68,8 +68,8 @@ export default function RootLayout({
           data-api-token={apiToken}
           defer
         />
-        <link rel="icon" href="https://tlx.page/icons/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="https://tlx.page/icons/apple-touch-icon.png" />
+        <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}

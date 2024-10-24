@@ -3,18 +3,18 @@
     "name": "TLX Tech",
     "icons": [
         {
-            "src": "https://tlx.page/icons/icon-192.png",
+            "src": "/icons/icon-192.png",
             "type": "image/png",
             "sizes": "192x192"
         },
         {
-            "src": "https://tlx.page/icons/icon-mask.png",
+            "src": "/icons/icon-mask.png",
             "type": "image/png",
             "sizes": "512x512",
             "purpose": "maskable"
         },
         {
-            "src": "https://tlx.page/icons/icon-512.png",
+            "src": "/icons/icon-512.png",
             "type": "image/png",
             "sizes": "512x512"
         }
