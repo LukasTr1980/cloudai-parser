@@ -68,6 +68,8 @@ export default function RootLayout({
           data-api-token={apiToken}
           defer
         />
+        <link rel="icon" href="https://tlx.page/icons/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="https://tlx.page/icons/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
