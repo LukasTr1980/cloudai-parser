@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "TLX Tech",
     images: [
       {
-        url: "/images/logo-800x400.png",
+        url: "https://tlx.page/images/logo-800x400.png",
         width: 800,
         height: 400,
         alt: "TLX Tech Open Graph Image",
