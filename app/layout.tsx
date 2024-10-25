@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { cookies } from "next/headers";
 import Header from "./components/Header";
+import Script from "next/script";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -63,17 +64,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
-          src='https://charts.cx/cdn/setApiToken.js'
-          data-api-token={apiToken}
-          defer
-        />
         <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
+        <Script id="set-api-token" strategy="beforeInteractive">
+          {`window.API_TOKEN = "${apiToken}";`}
+        </Script>
+
         <Header />
 
         <hr className="border-t border-gray-300" />

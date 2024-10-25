@@ -7,7 +7,7 @@ export function middleware(req: NextRequest) {
 
     if (!token) {
         const newToken = uuidv4();
-        const res = NextResponse.redirect(req.url);
+        const res = NextResponse.next();
         res.cookies.set('api_token', newToken, {
             httpOnly: false,
             sameSite: 'strict',
