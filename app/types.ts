@@ -44,3 +44,10 @@ export interface ExtractedTextSectionProps {
     handleCopy: () => void;
     handleDownload: () => void;
 }
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    children: React.ReactNode;
+    variant?: 'primary' | 'secondary' | 'danger';
+    size?: 'small' | 'medium' | 'large';
+    isLoading?: boolean;
+}

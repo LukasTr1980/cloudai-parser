@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
         const schema = Joi.object({
             eventType: Joi.string().trim().max(100).required(),
             eventData: Joi.object({
+                pageName: Joi.string().max(100).optional(),
                 buttonName: Joi.string().max(100).optional(),
                 action: Joi.string().max(200).optional(),
                 screenSize: Joi.object({

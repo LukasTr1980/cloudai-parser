@@ -13,12 +13,13 @@ import {
   CheckIcon,
   OpenSourceIcon,
 } from "./components/icons";
-import Spinner from "./components/spinner";
 import FeatureCard from "./components/FeatureCard";
 import ProgressBar from "./components/ProgressBar";
 import ErrorMessage from "./components/ErrorMessage";
 import ExtractedTextSection from "./components/ExtractedTextSection";
 import { logEvent } from "./utils/logger";
+import Button from "./components/Button";
+import Link from "next/link";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -152,9 +153,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    logEvent('page_load', {
-      action: 'User loaded home page',
-    });
+    logEvent('page_load', { pageName: 'Home Page', action: 'User loaded home page', });
   }, []);
 
   useEffect(() => {
@@ -192,20 +191,15 @@ export default function Home() {
                   <CheckIcon className="w-6 h-6 mr-2" />
                   <span className="text-lg font-semibold">Upload Complete</span>
                 </div>
-                <button
-                  className="relative px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 
-                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 
-                            disabled:bg-gray-400 "
+                <Button
+                  variant="primary"
+                  size="medium"
                   onClick={handleConvert}
                   disabled={isConverting || conversionCompleted}
+                  isLoading={isConverting}
                 >
-                  <span className={isConverting ? 'invisible' : ''}>Convert to text</span>
-                  {isConverting && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Spinner className="w-5 h-5" />
-                    </div>
-                  )}
-                </button>
+                  Convert to Text
+                </Button>
               </div>
             )}
           </div>
@@ -224,12 +218,13 @@ export default function Home() {
                 handleDownload={handleDownload}
               />
               <div className="flex justify-center mt-4">
-                <button
-                  className="px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700"
+                <Button
+                  variant="secondary"
+                  size="medium"
                   onClick={handleReset}
                 >
                   Upload another File
-                </button>
+                </Button>
               </div>
             </div>
           </>
@@ -262,18 +257,15 @@ export default function Home() {
           description={
             <>
               View the project on{' '}
-              <a
+              <Link
                 href="https://github.com/LukasTr1980/cloudai-parser"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 underline"
-                onClick={() => logEvent('link_click', {
-                  buttonName: 'Github Link',
-                  action: 'User clicked the Open Source Link'
-                })}
+                onClick={() => logEvent('link_click', { buttonName: 'Github Link', action: 'User clicked the Open Source Link' })}
               >
-                Github
-              </a>.
+                Github.
+              </Link>
             </>
           }
         />
