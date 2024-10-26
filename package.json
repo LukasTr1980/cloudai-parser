@@ -12,6 +12,7 @@
     "@google-cloud/documentai": "^8.10.0",
     "file-type": "^19.5.0",
     "filenamify": "^6.0.0",
+    "flag-icons": "^7.2.3",
     "ioredis": "^5.4.1",
     "joi": "^17.13.3",
     "mime-types": "^2.1.35",

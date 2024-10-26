@@ -36,6 +36,8 @@ export default function Home() {
   const [textFileName] = useState<string>('extracted_text');
   const [isPageValidating, setIsPageValidating] = useState<boolean>(false);
   const [conversionCompleted, setIsConversionCompleted] = useState<boolean>(false);
+  const [pageCount, setPageCount] = useState<number | undefined>(undefined);
+  const [detectedLanguages, setDetectedLanguages] = useState<string[] | undefined>(undefined);
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -53,6 +55,8 @@ export default function Home() {
         setUploadedFileName(null);
         setSelectedFile(file);
         setExtractedText('');
+        setPageCount(undefined);
+        setDetectedLanguages(undefined);
         setIsConversionCompleted(false);
       }
     });
@@ -106,7 +110,9 @@ export default function Home() {
         throw new Error(errorMessage);
       }
       const result = await response.json();
-      setExtractedText(result.data);
+      setExtractedText(result.data.text);
+      setPageCount(result.data.pageCount);
+      setDetectedLanguages(result.data.detectedLanguages);
       setErrorMessage('');
       setIsConversionCompleted(true);
     } catch (error: unknown) {
@@ -140,6 +146,8 @@ export default function Home() {
     setUploadCompleted(false);
     setUploadProgress(0);
     setExtractedText('');
+    setPageCount(undefined);
+    setDetectedLanguages(undefined);
     setIsConversionCompleted(false);
     setErrorMessage('');
     if (fileInputRef.current) {
@@ -213,9 +221,11 @@ export default function Home() {
             <div ref={extractedTextRef}>
               <ExtractedTextSection
                 extractedText={extractedText}
+                pageCount={pageCount}
                 copied={copied}
                 handleCopy={handleCopy}
                 handleDownload={handleDownload}
+                detectedLanguages={detectedLanguages}
               />
               <div className="flex justify-center mt-4">
                 <Button

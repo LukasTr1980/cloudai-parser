@@ -84,7 +84,11 @@ export async function POST(req: NextRequest) {
     }
 }
 
-async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<string> {
+async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<{
+    text: string;
+    pageCount?: number;
+    detectedLanguages?: string[];
+}> {
     console.info('Starting document processing');
 
     const projectId = await readSecretOrEnvVar('google_project_id', 'PROJECT_ID');
@@ -129,7 +133,32 @@ async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<st
             throw new Error('No text extracted from document');
         }
 
-        return document.text;
+        const text = document.text;
+        const pageCount = document.pages?.length || 0;
+        let detectedLanguages: string[] = [];
+
+        if (document.pages) {
+            const languageSet = new Set<string>();
+            for (const page of document.pages) {
+                const detectedLanguages = page.detectedLanguages || [];
+                for (const lang of detectedLanguages) {
+                    const confidence = lang.confidence ?? 0;
+                    const languageCode = lang.languageCode;
+                    if (confidence >= 0.8 && languageCode) {
+                        languageSet.add(languageCode);
+                    }
+                }
+
+            }
+            detectedLanguages = Array.from(languageSet);
+        }
+
+        return {
+            text,
+            pageCount,
+            detectedLanguages,
+        }
+
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error('Document AI processing error:', error.message);

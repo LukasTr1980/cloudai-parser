@@ -1,4 +1,4 @@
-import { CopyIcon, CheckIcon, DownloadIcon } from "./icons";
+import { CopyIcon, CheckIcon, DownloadIcon, LanguageIcon } from "./icons";
 import { ExtractedTextSectionProps } from "../types";
 
 const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
@@ -6,15 +6,17 @@ const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
     copied,
     handleCopy,
     handleDownload,
+    pageCount,
+    detectedLanguages,
 }) => (
-    <div className="bg-gray-50 shadow-lg rounded-xl p-6 mx-auto">
-        <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Extracted Text:</h2>
+    <div className="bg-gray-50 rounded-xl pt-6 pb-6 mx-auto">
+        <div className="flex items-center justify-between pl-6 pr-6">
+            <h2 className="text-xl font-bold text-gray-900">Extracted Text</h2>
             <div className="flex items-center space-x-3">
                 <button
                     className={`flex items-center px-4 py-2 rounded-lg transition-colors focus:outline-none ${copied
-                            ? "bg-green-100 hover:bg-green-200 text-green-600"
-                            : "bg-blue-100 hover:bg-blue-200 text-blue-600"
+                        ? "bg-green-100 hover:bg-green-200 text-green-600"
+                        : "bg-blue-100 hover:bg-blue-200 text-blue-600"
                         }`}
                     onClick={handleCopy}
                     aria-label="Copy text"
@@ -38,6 +40,45 @@ const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
                 </button>
             </div>
         </div>
+
+
+        <div className="pl-6 pr-6 mb-6">
+            <div className="flex items-center space-x-6">
+                {pageCount !== undefined && (
+                    <div className="flex items-center">
+                        <span className="text-gray-600 font-medium">Page Count:</span>
+                        <span className="ml-2 text-gray-800">{pageCount}</span>
+                    </div>
+                )}
+                {detectedLanguages && detectedLanguages.length > 0 && (
+                    <div className="flex items-center">
+                        <LanguageIcon className="w-5 h-5 text-gray-600 mr-1" />
+                        <span className="text-gray-600 font-medium">Detected Languages:</span>
+                        <span className="ml-2 flex space-x-2">
+                            {detectedLanguages.map((lang) => {
+                                const countryCode = lang.toLowerCase();
+                                if (countryCode) {
+                                    return (
+                                        <span
+                                            key={lang}
+                                            className={`fi fi-${countryCode} fis`}
+                                            title={lang}
+                                        ></span>
+                                    );
+                                } else {
+                                    return (
+                                        <span key={lang} className="text-gray-800">
+                                            {lang}
+                                        </span>
+                                    );
+                                }
+                            })}
+                        </span>
+                    </div>
+                )}
+            </div>
+        </div>
+
         <textarea
             className="w-full h-72 p-4 text-gray-800 bg-white border border-gray-200 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             value={extractedText}

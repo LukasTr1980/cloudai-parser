@@ -40,9 +40,11 @@ export interface ErrorMessageProps {
 
 export interface ExtractedTextSectionProps {
     extractedText: string;
+    pageCount?: number;
     copied: boolean;
     handleCopy: () => void;
     handleDownload: () => void;
+    detectedLanguages?: string[];
 }
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
