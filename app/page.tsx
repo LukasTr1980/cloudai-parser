@@ -12,7 +12,7 @@ import {
   PrivacyIcon,
   CheckIcon,
   OpenSourceIcon,
-} from "./components/icons";
+} from "./components/Icons";
 import FeatureCard from "./components/FeatureCard";
 import ProgressBar from "./components/ProgressBar";
 import ErrorMessage from "./components/ErrorMessage";
@@ -237,6 +237,32 @@ export default function Home() {
     checkFileExistence();
   }, []);
 
+  const handleFileDelete = async () => {
+    try {
+      const response = await fetch('/api/delete-file', {
+        method: 'POST',
+        headers: {
+          'X-Api-Token': window.API_TOKEN,
+        },
+        credentials: 'include',
+      });
+      if (response.ok) {
+        logEvent('button_click', { buttonName: 'Delete Icon', action: 'User clicked Delete Icon' });
+        setSelectedFile(null);
+        setSelectedFileName(null);
+        setSelectedFileSize(null);
+        setUploadCompleted(false);
+        setUploadProgress(0);
+        setErrorMessage('');
+        setIsFileDeleted(true);
+      } else {
+        logEvent('Error', { errorMessage: 'Failed to delete file' });
+      }
+    } catch (error) {
+      logEvent('Error', { errorMessage: error });
+    }
+  };
+
   return (
     <div className="container mx-auto px-2 py-4">
 
@@ -251,12 +277,14 @@ export default function Home() {
 
       <section className="mb-8">
         <FileUploadArea
+        isConverting={isConverting}
           selectedFile={selectedFile}
           selectedFileName={selectedFileName}
           selectedFileSize={selectedFileSize}
           isFileChecking={isFileChecking}
           isFileDeleted={isFileDeleted}
           onFileSelect={handleFileSelect}
+          onFileDelete={handleFileDelete}
           fileInputRef={fileInputRef}
           isUploading={isUploading}
           isPageValidating={isPageValidating}

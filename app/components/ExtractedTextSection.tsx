@@ -1,4 +1,4 @@
-import { CopyIcon, CheckIcon, DownloadIcon, LanguageIcon } from "./icons";
+import { CopyIcon, CheckIcon, DownloadIcon, LanguageIcon } from "./Icons";
 import { ExtractedTextSectionProps } from "../types";
 
 const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({

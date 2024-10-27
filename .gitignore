@@ -40,3 +40,4 @@ next-env.d.ts
 /credentials/
 diff-output.txt
 ToDo.md
+GPTcompare.ts

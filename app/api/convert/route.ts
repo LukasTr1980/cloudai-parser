@@ -28,13 +28,15 @@ export async function POST(req: NextRequest) {
     }
 
     let filePath = '';
+    let response: NextResponse = NextResponse.json({});
     try {
         console.info('Received POST request in /api/convert');
         const { fileName } = await req.json();
         console.info('Parsed request body:', { fileName });
         if (!fileName) {
             console.error('File name is missing');
-            return NextResponse.json({ message: 'File name is required' }, { status: 400 });
+            response = NextResponse.json({ message: 'File name is required' }, { status: 400 });
+            return response;
         }
 
         filePath = path.join(process.cwd(), 'uploads', fileName);
@@ -45,7 +47,8 @@ export async function POST(req: NextRequest) {
             console.info('File exists at path:', filePath);
         } catch {
             console.error('File not found at path:', filePath);
-            return NextResponse.json({ message: 'File not found' }, { status: 400 });
+            response = NextResponse.json({ message: 'File not found' }, { status: 400 });
+            return response;
         }
 
         const fileBuffer = await fs.readFile(filePath);
@@ -56,15 +59,15 @@ export async function POST(req: NextRequest) {
         const extractedText = await processDocument(fileBuffer, mimeType);
         console.info('Extracted text from document successfully');
 
-        return NextResponse.json({ message: 'Conversion successful', data: extractedText }, { status: 200 });
+        response = NextResponse.json({ message: 'Conversion successful', data: extractedText }, { status: 200 });
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error('Conversion error:', error.stack);
             const errorMessage = error.message;
-            return NextResponse.json({ message: errorMessage }, { status: 500 });
+            response = NextResponse.json({ message: errorMessage }, { status: 500 });
         } else {
             console.error('Unknown conversion error:', error);
-            return NextResponse.json({ message: 'Conversion failed' }, { status: 500 });
+            response = NextResponse.json({ message: 'Conversion failed' }, { status: 500 });
         }
     } finally {
         if (filePath) {
@@ -80,8 +83,19 @@ export async function POST(req: NextRequest) {
                     console.error('Unknown error while deleting file.');
                 }
             }
+            try {
+                response.cookies.delete('file_info');
+                console.info('Unset the file_info cookie.');
+            } catch (cookieError: unknown) {
+                if (cookieError instanceof Error) {
+                    console.error('Error unsetting cookie:', cookieError.message);
+                } else {
+                    console.error('Unknown error while unsetting cookie.');
+                }
+            }
         }
     }
+    return response;
 }
 
 async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<{

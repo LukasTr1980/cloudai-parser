@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ButtonProps } from "../types";
-import Spinner from "./spinner";
+import Spinner from "./Spinner";
 
 const Button: React.FC<ButtonProps> = ({
     children,

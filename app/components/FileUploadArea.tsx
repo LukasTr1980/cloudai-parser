@@ -2,10 +2,11 @@
 
 import { FileUploadAreaProps } from "../types";
 import React, { useState } from "react";
-import { CheckIcon, IMGIcon, PDFIcon } from "./icons";
-import Spinner from "./spinner";
+import { CheckIcon, DeleteIcon, IMGIcon, PDFIcon } from './Icons'
+import Spinner from "./Spinner";
 import { truncateFileName } from "../utils/stringUtils";
 import { logEvent } from "../utils/logger";
+import Button from "./Button";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
@@ -14,9 +15,11 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     isFileChecking,
     isFileDeleted,
     onFileSelect,
+    onFileDelete,
     fileInputRef,
     isUploading,
     isPageValidating,
+    isConverting,
 }) => {
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
     const [, setDragCounter] = useState<number>(0);
@@ -96,18 +99,25 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         }
     };
 
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onFileDelete();
+    };
+
     return (
         <>
             <div
                 className={`relative w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
-                    p-6 flex flex-col items-center justify-center mb-4 cursor-pointer transition-all duration-200 
-                    ${isUploading || isPageValidating || isFileChecking ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
-                    ${isDragOver ? 'bg-gray-50' : ''}`}
-                onClick={!isUploading && !isPageValidating || isFileChecking ? handleClick : undefined}
+                    p-6 flex flex-col items-center justify-center mb-4 transition-all duration-200 
+                    ${isDragOver ? '!bg-gray-50' : 'bg-white'}
+                    ${isUploading || isPageValidating || isFileChecking || isConverting
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'cursor-pointer hover:bg-gray-50'}`}
+                onClick={(!isUploading && !isPageValidating && !isConverting) || isFileChecking ? handleClick : undefined}
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                onDrop={!isUploading && !isPageValidating || isFileChecking ? handleDrop : undefined}
+                onDrop={(!isUploading && !isPageValidating && !isConverting) || isFileChecking ? handleDrop : undefined}
             >
                 <div className="flex items-center justify-between space-x-8 mb-4">
                     <PDFIcon
@@ -138,6 +148,19 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                         <CheckIcon className="w-6 h-6 mr-2" />
                         <span className="font-semibold text-lg">File removed from Server</span>
                     </p>
+                )}
+                {!isFileDeleted && (selectedFile || displayFileName) && (
+                    <div className="absolute top-2 right-2">
+                        <Button
+                            onClick={handleDelete}
+                            className="p-2"
+                            disabled={isConverting || isUploading}
+                            variant="danger"
+                            size="small"
+                        >
+                            <DeleteIcon className="w-6 h-6" />
+                        </Button>
+                    </div>
                 )}
                 {isPageValidating && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75">

@@ -15,6 +15,8 @@ export interface FileUploadAreaProps {
     selectedFile: File | null;
     selectedFileName: string | null;
     selectedFileSize: number | null;
+    onFileDelete: () => void;
+    isConverting: boolean;
     isFileChecking: boolean;
     isFileDeleted: boolean;
     onFileSelect: (file: File) => void;
@@ -57,4 +59,9 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     variant?: 'primary' | 'secondary' | 'danger';
     size?: 'small' | 'medium' | 'large';
     isLoading?: boolean;
+}
+
+export interface FileInfo {
+    uniqueName: string;
+    originalName: string;
 }
