@@ -20,9 +20,12 @@ import ExtractedTextSection from "./components/ExtractedTextSection";
 import { logEvent } from "./utils/logger";
 import Button from "./components/Button";
 import Link from "next/link";
+import { sanitizeFileName } from "./utils/clientSanitizeFileName";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [selectedFileSize, setSelectedFilesize] = useState<number | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -38,6 +41,8 @@ export default function Home() {
   const [conversionCompleted, setIsConversionCompleted] = useState<boolean>(false);
   const [pageCount, setPageCount] = useState<number | undefined>(undefined);
   const [detectedLanguages, setDetectedLanguages] = useState<string[] | undefined>(undefined);
+  const [, setFileExists] = useState<boolean | undefined>(undefined);
+  const [isFileChecking, setIsFileChecking] = useState<boolean>(false);
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -48,12 +53,17 @@ export default function Home() {
         setUploadCompleted(false);
         setUploadedFileName(null);
         setSelectedFile(null);
+        setSelectedFileName(null);
+        setSelectedFilesize(null);
       } else {
+        const sanitizedFileName = sanitizeFileName(file.name);
         setErrorMessage('');
         setUploadCompleted(false);
         setUploadProgress(0);
         setUploadedFileName(null);
         setSelectedFile(file);
+        setSelectedFileName(sanitizedFileName);
+        setSelectedFilesize(file.size);
         setExtractedText('');
         setPageCount(undefined);
         setDetectedLanguages(undefined);
@@ -115,6 +125,7 @@ export default function Home() {
       setDetectedLanguages(result.data.detectedLanguages);
       setErrorMessage('');
       setIsConversionCompleted(true);
+      setFileExists(false);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
@@ -149,6 +160,7 @@ export default function Home() {
     setPageCount(undefined);
     setDetectedLanguages(undefined);
     setIsConversionCompleted(false);
+    setFileExists(false);
     setErrorMessage('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -170,6 +182,51 @@ export default function Home() {
     }
   }, [extractedText]);
 
+  useEffect(() => {
+    const checkFileExistence = async () => { 
+      setIsFileChecking(true);
+      try {
+        const response = await fetch('/api/check-file', {
+          method: 'GET',
+          headers: {
+            'X-Api-Token': window.API_TOKEN,
+          },
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setFileExists(data.exists);
+          setUploadCompleted(true);
+          setUploadProgress(100);
+          setErrorMessage('');
+          setUploadedFileName(data.uniqueName);
+          setSelectedFileName(data.originalName);
+          setSelectedFilesize(data.fileSize);
+          setIsFileChecking(false);
+        } else {
+          if (response.status === 404) {
+            setFileExists(false);
+          } else {
+            const errorData = await response.json();
+            setErrorMessage(errorData.message);
+            logEvent('Error', { errorMessage: errorData.message || 'Failed to check file existence.' });
+          }
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          logEvent('Error', { errorMessage: error.message || 'An error occurred while checking file existence.' });
+        } else {
+          logEvent('Error', { errorMessage: 'An unknown error occurred while checking file existence.' });
+        }
+      } finally {
+        setIsFileChecking(false);
+      }
+    };
+
+    checkFileExistence();
+  }, []);
+
   return (
     <div className="container mx-auto px-2 py-4">
 
@@ -185,6 +242,9 @@ export default function Home() {
       <section className="mb-8">
         <FileUploadArea
           selectedFile={selectedFile}
+          selectedFileName={selectedFileName}
+          selectedFileSize={selectedFileSize}
+          isFileChecking={isFileChecking}
           onFileSelect={handleFileSelect}
           fileInputRef={fileInputRef}
           isUploading={isUploading}

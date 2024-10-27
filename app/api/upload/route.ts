@@ -76,7 +76,28 @@ export async function POST(req: NextRequest) {
         console.info('Saving file to path:', filePath);
         await fs.writeFile(filePath, buffer);
         console.info('File uploaded successfully:', uniqueFileName);
-        return NextResponse.json({ message: 'File uploaded successfully!', fileName: uniqueFileName }, { status: 200 });
+
+        const originalFilename = file.name;
+
+        const fileInfo = JSON.stringify({
+            originalName: originalFilename,
+            uniqueName: uniqueFileName,
+        });
+
+        const response = NextResponse.json(
+            { message: 'File uploaded successfully!', fileName: uniqueFileName },
+            { status: 200 }
+        );
+
+        response.cookies.set('file_info', fileInfo, {
+            path: '/',
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7,
+        });
+
+        return response;
     } catch (error) {
         console.error('Error while saving file:', error);
         return NextResponse.json({ message: 'Failed to save file' }, { status: 500 });

@@ -9,6 +9,9 @@ import { logEvent } from "../utils/logger";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
+    selectedFileName,
+    selectedFileSize,
+    isFileChecking,
     onFileSelect,
     fileInputRef,
     isUploading,
@@ -16,6 +19,8 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
 }) => {
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
     const [, setDragCounter] = useState<number>(0);
+    const displayFileName = selectedFile?.name || selectedFileName || '';
+    const displayFileSize = selectedFile?.size || selectedFileSize || null;
 
     const handleClick = () => {
         logEvent('file_upload_click', { action: 'User clicked to select a file' });
@@ -39,12 +44,12 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!isUploading && !isPageValidating) {
+        if (!isUploading && !isPageValidating && !isFileChecking) {
             setDragCounter(prevCounter => {
                 const newCounter = prevCounter + 1;
                 if (newCounter > 0) {
                     setIsDragOver(true);
-                    
+
                     logEvent('drag_enter', { action: 'User started dragging a file over the upload area' });
                 }
                 return newCounter;
@@ -95,13 +100,13 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
             <div
                 className={`relative w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
                     p-6 flex flex-col items-center justify-center mb-4 cursor-pointer transition-all duration-200 
-                    ${isUploading || isPageValidating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
+                    ${isUploading || isPageValidating || isFileChecking ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'}
                     ${isDragOver ? 'bg-gray-50' : ''}`}
-                onClick={!isUploading && !isPageValidating ? handleClick : undefined}
+                onClick={!isUploading && !isPageValidating || isFileChecking ? handleClick : undefined}
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
-                onDrop={!isUploading && !isPageValidating ? handleDrop : undefined}
+                onDrop={!isUploading && !isPageValidating || isFileChecking ? handleDrop : undefined}
             >
                 <div className="flex items-center justify-between space-x-8 mb-4">
                     <PDFIcon
@@ -116,18 +121,25 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 ) : (
                     <p className="text-gray-600 text-center text-lg">Click or drag file to this area to upload</p>
                 )}
-                {selectedFile && (
+                {(selectedFile || displayFileName || displayFileSize !== null) && (
                     <p className="mt-4 text-gray-700 text-center">
                         Selected file:{' '}
                         <span className="font-semibold break-all">
-                            {truncateFileName(selectedFile.name, 50)}
+                            {truncateFileName(displayFileName, 50)}
                         </span>
-                        {' '}({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
+                        {' '}
+                        {displayFileSize !== null && `(${(displayFileSize / (1024 * 1024)).toFixed(2)} MB)`}
                     </p>
                 )}
                 {isPageValidating && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75">
                         <p className="text-xl font-semibold mb-4">Preprocessing File</p>
+                        <Spinner className="w-16 h-16" />
+                    </div>
+                )}
+                {isFileChecking && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75">
+                        <p className="text-xl font-semibold mb-4">Preparing...</p>
                         <Spinner className="w-16 h-16" />
                     </div>
                 )}

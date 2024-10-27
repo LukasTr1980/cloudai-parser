@@ -13,6 +13,9 @@ export type ValidationResult =
 
 export interface FileUploadAreaProps {
     selectedFile: File | null;
+    selectedFileName: string | null;
+    selectedFileSize: number | null;
+    isFileChecking: boolean;
     onFileSelect: (file: File) => void;
     fileInputRef: RefObject<HTMLInputElement>;
     isUploading: boolean;
