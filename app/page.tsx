@@ -20,12 +20,12 @@ import ExtractedTextSection from "./components/ExtractedTextSection";
 import { logEvent } from "./utils/logger";
 import Button from "./components/Button";
 import Link from "next/link";
-import { sanitizeFileName } from "./utils/clientSanitizeFileName";
+import sanitize from "sanitize-html";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
-  const [selectedFileSize, setSelectedFilesize] = useState<number | null>(null);
+  const [selectedFileSize, setSelectedFileSize] = useState<number | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -43,6 +43,7 @@ export default function Home() {
   const [detectedLanguages, setDetectedLanguages] = useState<string[] | undefined>(undefined);
   const [, setFileExists] = useState<boolean | undefined>(undefined);
   const [isFileChecking, setIsFileChecking] = useState<boolean>(false);
+  const [isFileDeleted, setIsFileDeleted] = useState<boolean>(false);
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -54,20 +55,22 @@ export default function Home() {
         setUploadedFileName(null);
         setSelectedFile(null);
         setSelectedFileName(null);
-        setSelectedFilesize(null);
+        setSelectedFileSize(null);
+        setIsFileDeleted(false);
       } else {
-        const sanitizedFileName = sanitizeFileName(file.name);
+        const sanitizedFileName = sanitize(file.name);
         setErrorMessage('');
         setUploadCompleted(false);
         setUploadProgress(0);
         setUploadedFileName(null);
         setSelectedFile(file);
         setSelectedFileName(sanitizedFileName);
-        setSelectedFilesize(file.size);
+        setSelectedFileSize(file.size);
         setExtractedText('');
         setPageCount(undefined);
         setDetectedLanguages(undefined);
         setIsConversionCompleted(false);
+        setIsFileDeleted(false);
       }
     });
   };
@@ -117,6 +120,7 @@ export default function Home() {
       if (!response.ok) {
         const errorResponse = await response.json();
         const errorMessage = errorResponse.message || 'Conversion failed';
+        setIsFileDeleted(true);
         throw new Error(errorMessage);
       }
       const result = await response.json();
@@ -126,6 +130,7 @@ export default function Home() {
       setErrorMessage('');
       setIsConversionCompleted(true);
       setFileExists(false);
+      setIsFileDeleted(true);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
@@ -161,6 +166,9 @@ export default function Home() {
     setDetectedLanguages(undefined);
     setIsConversionCompleted(false);
     setFileExists(false);
+    setIsFileDeleted(false);
+    setSelectedFileSize(null);
+    setSelectedFileName(null);
     setErrorMessage('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -183,7 +191,7 @@ export default function Home() {
   }, [extractedText]);
 
   useEffect(() => {
-    const checkFileExistence = async () => { 
+    const checkFileExistence = async () => {
       setIsFileChecking(true);
       try {
         const response = await fetch('/api/check-file', {
@@ -197,26 +205,28 @@ export default function Home() {
         if (response.ok) {
           const data = await response.json();
           setFileExists(data.exists);
-          setUploadCompleted(true);
-          setUploadProgress(100);
-          setErrorMessage('');
-          setUploadedFileName(data.uniqueName);
-          setSelectedFileName(data.originalName);
-          setSelectedFilesize(data.fileSize);
-          setIsFileChecking(false);
-        } else {
-          if (response.status === 404) {
-            setFileExists(false);
+
+          if (data.exists) {
+            setUploadCompleted(true);
+            setUploadProgress(100);
+            setErrorMessage('');
+            setUploadedFileName(data.uniqueName);
+            setSelectedFileName(data.originalName);
+            setSelectedFileSize(data.fileSize);
           } else {
-            const errorData = await response.json();
-            setErrorMessage(errorData.message);
-            logEvent('Error', { errorMessage: errorData.message || 'Failed to check file existence.' });
+            setFileExists(false);
           }
+        } else {
+          const errorData = await response.json();
+          setErrorMessage(errorData.message || 'Failed to check file existence.');
+          logEvent('Error', { errorMessage: errorData.message || 'Failed to check file existence.' });
         }
       } catch (error: unknown) {
         if (error instanceof Error) {
+          setErrorMessage(error.message || 'An error occurred while checking file existence.');
           logEvent('Error', { errorMessage: error.message || 'An error occurred while checking file existence.' });
         } else {
+          setErrorMessage('An unknown error occurred while checking file existence.');
           logEvent('Error', { errorMessage: 'An unknown error occurred while checking file existence.' });
         }
       } finally {
@@ -245,6 +255,7 @@ export default function Home() {
           selectedFileName={selectedFileName}
           selectedFileSize={selectedFileSize}
           isFileChecking={isFileChecking}
+          isFileDeleted={isFileDeleted}
           onFileSelect={handleFileSelect}
           fileInputRef={fileInputRef}
           isUploading={isUploading}
@@ -281,6 +292,7 @@ export default function Home() {
             <div ref={extractedTextRef}>
               <ExtractedTextSection
                 extractedText={extractedText}
+                selectedFileName={selectedFileName}
                 pageCount={pageCount}
                 copied={copied}
                 handleCopy={handleCopy}

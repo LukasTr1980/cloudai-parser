@@ -2,7 +2,7 @@
 
 import { FileUploadAreaProps } from "../types";
 import React, { useState } from "react";
-import { IMGIcon, PDFIcon } from "./icons";
+import { CheckIcon, IMGIcon, PDFIcon } from "./icons";
 import Spinner from "./spinner";
 import { truncateFileName } from "../utils/stringUtils";
 import { logEvent } from "../utils/logger";
@@ -12,6 +12,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFileName,
     selectedFileSize,
     isFileChecking,
+    isFileDeleted,
     onFileSelect,
     fileInputRef,
     isUploading,
@@ -121,14 +122,21 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 ) : (
                     <p className="text-gray-600 text-center text-lg">Click or drag file to this area to upload</p>
                 )}
-                {(selectedFile || displayFileName || displayFileSize !== null) && (
-                    <p className="mt-4 text-gray-700 text-center">
-                        Selected file:{' '}
-                        <span className="font-semibold break-all">
-                            {truncateFileName(displayFileName, 50)}
-                        </span>
-                        {' '}
-                        {displayFileSize !== null && `(${(displayFileSize / (1024 * 1024)).toFixed(2)} MB)`}
+                {!isFileDeleted ? (
+                    (selectedFile || displayFileName || displayFileSize !== null) && (
+                        <p className="mt-4 text-gray-700 text-center">
+                            Selected file:{' '}
+                            <span className="font-semibold break-all">
+                                {truncateFileName(displayFileName, 50)}
+                            </span>
+                            {' '}
+                            {displayFileSize !== null && `(${(displayFileSize / (1024 * 1024)).toFixed(2)} MB)`}
+                        </p>
+                    )
+                ) : (
+                    <p className="flex items-center mt-4 text-gray-700 text-center">
+                        <CheckIcon className="w-6 h-6 mr-2" />
+                        <span className="font-semibold text-lg">File removed from Server</span>
                     </p>
                 )}
                 {isPageValidating && (

@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
         console.info('No file_info cookie found.');
         return NextResponse.json(
             { exists: false, message: 'No file_info cookie found.' },
-            { status: 400 },
+            { status: 200 },
         );
     };
 
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
         console.error('Failed to parse file_info cookie in check-file route:', error);
         return NextResponse.json(
             { exists: false },
-            { status: 404 },
+            { status: 200 },
         );
     }
 
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
         console.warn('Incomplete file information in file_info cookie');
         return NextResponse.json(
             { exists: false },
-            { status: 400 },
+            { status: 200 },
         );
     }
 
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
         console.info(`File not found: ${uniqueName} (Original: ${originalName})`, error);
         return NextResponse.json(
             { exists: false, message: 'File not found in check-file route on server' },
-            { status: 404 }
+            { status: 200 }
         );
     }
 }

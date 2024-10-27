@@ -3,6 +3,7 @@ import { ExtractedTextSectionProps } from "../types";
 
 const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
     extractedText,
+    selectedFileName,
     copied,
     handleCopy,
     handleDownload,
@@ -10,8 +11,13 @@ const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
     detectedLanguages,
 }) => (
     <div className="bg-gray-50 rounded-xl pt-6 pb-6 mx-auto">
-        <div className="flex items-center justify-between pl-6 pr-6">
-            <h2 className="text-xl font-bold text-gray-900">Extracted Text</h2>
+        <div className="flex flex-col sm:flex-row items-center justify-between px-4">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex-1 min-w-0">
+                Extracted Text for File:{' '}
+                <span className="text-gray-900 break-all font-medium">
+                    {selectedFileName}
+                </span>
+                </h2>
             <div className="flex items-center space-x-3">
                 <button
                     className={`flex items-center px-4 py-2 rounded-lg transition-colors focus:outline-none ${copied
@@ -42,7 +48,7 @@ const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
         </div>
 
 
-        <div className="pl-6 pr-6 mb-6">
+        <div className="px-4 mb-6">
             <div className="flex items-center space-x-6">
                 {pageCount !== undefined && (
                     <div className="flex items-center">

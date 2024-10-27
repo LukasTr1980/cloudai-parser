@@ -16,6 +16,7 @@ export interface FileUploadAreaProps {
     selectedFileName: string | null;
     selectedFileSize: number | null;
     isFileChecking: boolean;
+    isFileDeleted: boolean;
     onFileSelect: (file: File) => void;
     fileInputRef: RefObject<HTMLInputElement>;
     isUploading: boolean;
@@ -43,6 +44,7 @@ export interface ErrorMessageProps {
 
 export interface ExtractedTextSectionProps {
     extractedText: string;
+    selectedFileName: string | null;
     pageCount?: number;
     copied: boolean;
     handleCopy: () => void;
