@@ -21,6 +21,7 @@ import { logEvent } from "./utils/logger";
 import Button from "./components/Button";
 import Link from "next/link";
 import sanitize from "sanitize-html";
+import { supportedLanguages } from "./utils/constants";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -44,6 +45,7 @@ export default function Home() {
   const [, setFileExists] = useState<boolean | undefined>(undefined);
   const [isFileChecking, setIsFileChecking] = useState<boolean>(false);
   const [isFileDeleted, setIsFileDeleted] = useState<boolean>(false);
+  const supportedLanguagesRef = useRef<HTMLDivElement>(null);
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -263,6 +265,17 @@ export default function Home() {
     }
   };
 
+  const handleScrollToLanguages = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    event.preventDefault();
+    logEvent('link_click', {
+      buttonName: 'Supported Languages More Link',
+      action: 'User clicked to view supported languages',
+    });
+    if (supportedLanguagesRef.current) {
+      supportedLanguagesRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
   return (
     <div className="container mx-auto px-2 py-4">
 
@@ -277,7 +290,7 @@ export default function Home() {
 
       <section className="mb-8">
         <FileUploadArea
-        isConverting={isConverting}
+          isConverting={isConverting}
           selectedFile={selectedFile}
           selectedFileName={selectedFileName}
           selectedFileSize={selectedFileSize}
@@ -354,7 +367,14 @@ export default function Home() {
         <FeatureCard
           icon={<LanguageIcon className="w-12 h-12 text-green-500 mb-2" />}
           title="200+ Languages"
-          description="Supports over 200 languages for text extraction."
+          description={
+            <>
+              Supports over 200 languages for text extraction.{' '}
+              <button className="text-blue-500 underline" onClick={handleScrollToLanguages}>
+                More
+              </button>
+            </>
+          }
         />
         <FeatureCard
           icon={<PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />}
@@ -379,6 +399,21 @@ export default function Home() {
             </>
           }
         />
+      </section>
+
+      <section id="supported-languages" className="mb-8">
+        <div ref={supportedLanguagesRef} className="bg-white border border-gray-300 rounded-md p-6 shadow-md">
+          <h2 className="text-2xl font-semibold mb-4 text-center">Supported Languages</h2>
+          <div className="flex justify-center">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {supportedLanguages.map((language) => (
+                <div key={language} className="text-md text-gray-800 border border-gray-300 rounded-md p-2 text-center">
+                  {language}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
     </div>
