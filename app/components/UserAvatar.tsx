@@ -40,6 +40,7 @@ export default function UserAvatar() {
     }, []);
 
     const handleSignOut = async () => {
+        logEvent('button_click', { buttonName: 'Sign Out', action: 'User clicked Sign Out button' });
         signOut({ callbackUrl: '/signout' });
     };
 

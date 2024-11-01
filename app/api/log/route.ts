@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
                 timeZone: Joi.string().optional(),
                 language: Joi.string().optional(),
                 numPage: Joi.number().optional(),
+                provider: Joi.string().optional(),
             }).unknown(true),
         });
 

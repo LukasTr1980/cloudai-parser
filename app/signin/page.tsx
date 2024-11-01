@@ -6,6 +6,7 @@ import { GoogleIcon } from "../components/Icons";
 const SIGNIN_ERROR_URL = "/";
 
 export default async function SignInPage() {
+
     return (
         <div className="container mx-auto px-4 py-6 max-w-sm">
             <div className="flex flex-col gap-2 items-center border border-gray-300 rounded-md p-4 shadow-md">
