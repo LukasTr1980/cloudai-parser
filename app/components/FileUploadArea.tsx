@@ -7,6 +7,8 @@ import Spinner from "./Spinner";
 import { truncateFileName } from "../utils/stringUtils";
 import { logEvent } from "../utils/logger";
 import Button from "./Button";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     selectedFile,
@@ -25,7 +27,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     const [, setDragCounter] = useState<number>(0);
     const displayFileName = selectedFile?.name || selectedFileName || '';
     const displayFileSize = selectedFile?.size || selectedFileSize || null;
-
+    const { data: session, status } = useSession();
     const handleClick = () => {
         logEvent('file_upload_click', { action: 'User clicked to select a file' });
         fileInputRef.current?.click();
@@ -106,6 +108,32 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
 
     return (
         <>
+            {status === 'loading' && (
+                <div className="flex w-full h-32 items-center justify-center">
+                    <Spinner className="w-12 h-12" />
+                </div>
+            )}
+            {status !== 'loading' && !session?.user && (
+                <div className="flex flex-col p-4 bg-violet-100 border border-gray-300 shadow-md rounded-md mb-6 text-center min-h-32">
+                    <div className="flex flex-col items-center justify-center h-full">
+                        <p className="text-lg text-violet-600 mb-2 font-semibold">
+                            Want more for free? 30 Pages, 40 MB
+                        </p>
+                        <Link
+                            href="/signin"
+                            className="inline-block px-6 py-2 border border-transparent text-base font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                            onClick={() =>
+                                logEvent('link_click', {
+                                    buttonName: 'Sign In',
+                                    action: 'User clicked the Sign In link',
+                                })
+                            }
+                        >
+                            Sign In
+                        </Link>
+                    </div>
+                </div>
+            )}
             <div
                 className={`relative w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
                     p-6 flex flex-col items-center justify-center mb-4 transition-all duration-200 

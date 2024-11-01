@@ -22,6 +22,8 @@ import Button from "./components/Button";
 import Link from "next/link";
 import sanitize from "sanitize-html";
 import { supportedLanguages } from "./utils/constants";
+import { useSession } from "next-auth/react";
+import Spinner from "./components/Spinner";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -46,6 +48,7 @@ export default function Home() {
   const [isFileChecking, setIsFileChecking] = useState<boolean>(false);
   const [isFileDeleted, setIsFileDeleted] = useState<boolean>(false);
   const supportedLanguagesRef = useRef<HTMLDivElement>(null);
+  const { status } = useSession();
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -355,15 +358,33 @@ export default function Home() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <FeatureCard
-          icon={<UploadIcon className="w-12 h-12 text-blue-500 mb-2" />}
-          title="Upload Files"
-          description={
-            <>
-              Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}<strong>15 pages</strong>.
-            </>
-          }
-        />
+        {status === 'loading' && (
+          <div className="flex items-center justify-center mb-4">
+            <Spinner className="w-8 h-8" />
+          </div>
+        )}
+
+        {status !== 'loading' && (
+          <FeatureCard
+            icon={<UploadIcon className="w-12 h-12 text-blue-500 mb-2" />}
+            title="Upload Files"
+            description={
+              <>
+                {status === 'unauthenticated'
+                  ? (
+                    <>
+                      Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}<strong>15 pages</strong>.
+                    </>
+                  ) : (
+                    <>
+                      Upload PDFs or images up to <strong>40 MB</strong> with a maximum of{' '}<strong>30 pages</strong>.
+                    </>
+                  )
+                }
+              </>
+            }
+          />
+        )}
         <FeatureCard
           icon={<LanguageIcon className="w-12 h-12 text-green-500 mb-2" />}
           title="200+ Languages"

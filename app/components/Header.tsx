@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import UserAvatar from "../signin/components/UserAvatar";
+import UserAvatar from "./UserAvatar";
 
 const Header = () => (
     <header className="bg-gray-100 text-gray-600">
-        <div className="container mx-auto flex items-center px-4">
+        <div className="container mx-auto flex items-center px-2">
             <Link href="/" className="flex items-center space-x-1">
                 <Image
                     src="/images/logo-original.svg"

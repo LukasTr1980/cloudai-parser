@@ -4,6 +4,7 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import Header from "./components/Header";
 import Script from "next/script";
+import { Providers } from "./providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -74,18 +75,20 @@ export default function RootLayout({
           {`window.API_TOKEN = "${apiToken}";`}
         </Script>
 
-        <Header />
+        <Providers>
+          <Header />
 
-        <hr className="border-t border-gray-300" />
+          <hr className="border-t border-gray-300" />
 
-        <main className="flex flex-grow justify-center">
-          <div className="w-full max-w-5xl mx-2">
-            {children}
-          </div>
-        </main>
-        <footer className="text-center text-gray-500 text-sm py-4">
-          {new Date().getFullYear()} Cloud AI Parser
-        </footer>
+          <main className="flex flex-grow justify-center">
+            <div className="w-full max-w-5xl mx-2">
+              {children}
+            </div>
+          </main>
+          <footer className="text-center text-gray-500 text-sm py-4">
+            {new Date().getFullYear()} Cloud AI Parser
+          </footer>
+        </Providers>
       </body>
     </html>
   );
