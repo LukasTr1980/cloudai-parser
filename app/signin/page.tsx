@@ -1,43 +1,39 @@
-import { redirect } from "next/navigation";
-import { signIn, providerMap } from "@/auth";
-import { AuthError } from "next-auth";
+"use client";
+
+import { signIn } from "next-auth/react";
+import { providerMap } from "../utils/providers";
 import { GoogleIcon } from "../components/Icons";
+import { useEffect } from "react";
+import { logEvent } from "../utils/logger";
 
-const SIGNIN_ERROR_URL = "/";
+export default function SignInPage() {
+    const handleSignIn = (providerId: string) => {
+        logEvent('button_click', { provider: providerId, action: `User signed in with ${providerId}` });
+        signIn(providerId, { redirectTo: "/" });
+    };
 
-export default async function SignInPage() {
+    useEffect(() => {
+        logEvent('page_load', { pageName: 'Sign In', action: 'User opened Sign In Page.' });
+    }, []);
 
     return (
         <div className="container mx-auto px-4 py-6 max-w-sm">
             <div className="flex flex-col gap-2 items-center border border-gray-300 rounded-md p-4 shadow-md">
                 {Object.values(providerMap).map((provider) => (
-                    <form
+                    <button
                         key={provider.id}
-                        action={async () => {
-                            "use server"
-                            try {
-                                await signIn(provider.id, {
-                                    redirectTo: "/",
-                                })
-                            } catch (error) {
-                                if (error instanceof AuthError) {
-                                    return redirect(`${SIGNIN_ERROR_URL}?error=${error.type}`)
-                                }
-                                throw error;
-                            }
-                        }}
+                        onClick={() => handleSignIn(provider.id)}
+                        className="gsi-material-button"
                     >
-                        <button type="submit" className="gsi-material-button">
-                            <div className="gsi-material-button-content-wrapper">
-                                <div className="gsi-material-button-icon">
-                                    <GoogleIcon />
-                                </div>
-                                <div className="gsi-material-button-contents">
-                                    Sign in with {provider.name}
-                                </div>
+                        <div className="gsi-material-button-content-wrapper">
+                            <div className="gsi-material-button-icon">
+                                <GoogleIcon />
                             </div>
-                        </button>
-                    </form>
+                            <div className="gsi-material-button-contents">
+                                Sign in with {provider.name}
+                            </div>
+                        </div>
+                    </button>
                 ))}
             </div>
         </div>

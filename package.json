@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/mongodb-adapter": "^3.7.2",
     "@google-cloud/documentai": "^8.10.0",
     "file-type": "^19.5.0",
     "filenamify": "^6.0.0",
@@ -16,6 +17,7 @@
     "ioredis": "^5.4.1",
     "joi": "^17.13.3",
     "mime-types": "^2.1.35",
+    "mongodb": "^6.10.0",
     "next": "14.2.14",
     "next-auth": "^5.0.0-beta.25",
     "pdfjs-dist": "^4.7.76",
