@@ -81,10 +81,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (selectedFile) {
+    if (selectedFile && status !== 'loading') {
       uploadFileAsync(selectedFile);
     }
-  }, [selectedFile]);
+  }, [selectedFile, status]);
 
   const uploadFileAsync = async (file: File) => {
     setIsUploading(true);
@@ -198,9 +198,12 @@ export default function Home() {
 
   useEffect(() => {
     const checkFileExistence = async () => {
+      if (status === 'loading') return;
+
       setIsFileChecking(true);
       try {
-        const response = await fetch('/api/check-file', {
+        const apiRoute = status === 'authenticated' ? '/api/plus-check-file' : '/api/check-file';
+        const response = await fetch(apiRoute, {
           method: 'GET',
           headers: {
             'X-Api-Token': window.API_TOKEN,
@@ -241,11 +244,12 @@ export default function Home() {
     };
 
     checkFileExistence();
-  }, []);
+  }, [status]);
 
   const handleFileDelete = async () => {
     try {
-      const response = await fetch('/api/delete-file', {
+      const apiRoute = status === 'authenticated' ? '/api/plus-delete-file' : '/api/delete-file';
+      const response = await fetch(apiRoute, {
         method: 'POST',
         headers: {
           'X-Api-Token': window.API_TOKEN,
