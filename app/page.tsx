@@ -89,7 +89,8 @@ export default function Home() {
   const uploadFileAsync = async (file: File) => {
     setIsUploading(true);
     try {
-      const response = await uploadFile(file, (progress) => {
+      const apiRoute = status === 'authenticated' ? '/api/plus-upload' : '/api/upload';
+      const response = await uploadFile(file, apiRoute, (progress) => {
         setUploadProgress(progress);
       });
       setUploadedFileName(response.fileName);

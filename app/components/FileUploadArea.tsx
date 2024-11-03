@@ -106,6 +106,12 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
         onFileDelete();
     };
 
+    const getBackgroundColor = () => {
+        return session?.user
+            ? 'bg-violet-50 hover:bg-violet-100'
+            : 'bg-white hover:bg-gray-50';
+    }
+
     return (
         <>
             {status === 'loading' && (
@@ -135,12 +141,12 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                 </div>
             )}
             <div
-                className={`relative w-full bg-white border-2 border-dashed border-blue-400 rounded-lg 
+                className={`relative w-full border-2 border-dashed border-blue-400 rounded-lg 
                     p-6 flex flex-col items-center justify-center mb-4 transition-all duration-200 
-                    ${isDragOver ? '!bg-gray-50' : 'bg-white'}
+                    ${getBackgroundColor()}
                     ${isUploading || isPageValidating || isFileChecking || isConverting
                         ? 'opacity-50 cursor-not-allowed'
-                        : 'cursor-pointer hover:bg-gray-50'}`}
+                        : 'cursor-pointer'}`}
                 onClick={(!isUploading && !isPageValidating && !isConverting) || isFileChecking ? handleClick : undefined}
                 onDragEnter={handleDragEnter}
                 onDragOver={handleDragOver}

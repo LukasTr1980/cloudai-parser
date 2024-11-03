@@ -1,5 +1,6 @@
 export async function uploadFile(
     file: File,
+    apiRoute: string,
     onProgress: (percentage: number) => void
 ) {
     const formData = new FormData();
@@ -38,7 +39,7 @@ export async function uploadFile(
             }
         };
 
-        xhr.open('POST', '/api/upload');
+        xhr.open('POST', apiRoute);
         xhr.withCredentials = true;
         xhr.setRequestHeader('X-Api-Token', window.API_TOKEN);
         xhr.send(formData);

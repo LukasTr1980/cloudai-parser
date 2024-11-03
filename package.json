@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/mongodb-adapter": "^3.7.2",
     "@google-cloud/documentai": "^8.10.0",
+    "@google-cloud/storage": "^7.14.0",
     "file-type": "^19.5.0",
     "filenamify": "^6.0.0",
     "flag-icons": "^7.2.3",
