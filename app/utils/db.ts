@@ -15,36 +15,31 @@ const options = {
 }
 
 let client: MongoClient
+let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === 'development') {
     console.info('Running MongoDB in development mode');
     const globalWithMongo = global as typeof globalThis & {
-        _mongoClient?: MongoClient
-    }
+        _mongoClientPromise?: Promise<MongoClient>;
+    };
 
-    if (!globalWithMongo._mongoClient) {
+    if (!globalWithMongo._mongoClientPromise) {
         console.info('Creating new MongoDB client instance');
-        globalWithMongo._mongoClient = new MongoClient(uri, options);
+        client = new MongoClient(uri, options);
+        globalWithMongo._mongoClientPromise = client.connect();
     } else {
         console.info('Reusing existing MongoDB client instance');
     }
-    client = globalWithMongo._mongoClient
+    clientPromise = globalWithMongo._mongoClientPromise;
 } else {
     console.info('Running MongoDB in production mode');
     console.info('Creating new MongoDB client instance');
     client = new MongoClient(uri, options)
+    clientPromise = client.connect();
 }
 
-client.connect()
+clientPromise
     .then(() => console.info('Successfully connected to MongoDB'))
     .catch(err => console.error('Failed to connect to MongoDB:', err));
 
-client.on('close', () => console.info('MongoDB connection closed'));
-
-process.on('SIGINT', () => {
-    client.close().then(() => {
-        console.info('MongoDB connection closed through app termination');
-    });
-});
-
-export default client
+export default clientPromise

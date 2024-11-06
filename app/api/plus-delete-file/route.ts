@@ -3,12 +3,13 @@ import { rateLimiter } from "@/app/utils/rateLimiter";
 import { isNodeJsErrnoException } from "@/app/utils/readSecretOrEnvVar";
 import { FileInfo } from "@/app/types";
 import { Storage } from "@google-cloud/storage";
+import { auth } from "@/auth";
 
 const storage = new Storage();
 const bucketName = process.env.GCS_BUCKET_NAME || '/tmp/';
 const bucket = storage.bucket(bucketName);
 
-export async function POST(req: NextRequest) {
+export const POST = auth(async function POST(req: NextRequest) {
     const ip =
         req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
         req.headers.get('x-real-ip') ||
@@ -96,4 +97,4 @@ export async function POST(req: NextRequest) {
         }
     }
     return response;
-}
+});

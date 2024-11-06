@@ -2,7 +2,8 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import type { Provider } from "next-auth/providers";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import client from "./app/utils/db";
+import clientPromise from "./app/utils/db";
+import Nodemailer from "next-auth/providers/nodemailer";
 
 declare module "next-auth" {
     interface Session {
@@ -14,6 +15,10 @@ declare module "next-auth" {
 
 const providers: Provider[] = [
     Google,
+    Nodemailer({
+        server: process.env.EMAIL_SERVER,
+        from: process.env.EMAIL_FROM,
+    })
 ]
 
 export const providerMap = providers
@@ -32,44 +37,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     pages: {
         signIn: "/signin",
     },
-    adapter: MongoDBAdapter(client),
+    adapter: MongoDBAdapter(clientPromise, {
+        databaseName: "tlxtech",
+    }),
     callbacks: {
-        async signIn({ user }) {
-            try {
-                const db = client.db('tlxtech');
-                const userCollection = db.collection('users');
-
-                const existingUser = await userCollection.findOne({ googleId: user.id });
-
-                if (!existingUser) {
-                    await userCollection.insertOne({
-                        email: user.email,
-                        name: user.name,
-                        googleId: user.id,
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
-                    });
-                    console.info(`New user added to the database: ${user.email}`);
-                } else {
-                    await userCollection.updateOne(
-                        { googleId: user.id },
-                        {
-                            $set: {
-                                email: user.email,
-                                name: user.name,
-                                updatedAt: new Date(),
-                            }
-                        }
-                    );
-                    console.info(`Existing user updated in database: ${user.email}`);
-                }
-
-                return true;
-            } catch (error) {
-                console.error('Error saving user to database:', error);
-                throw new Error('Unable to save user information in database.');
-            }
-        },
         session({ session, user }) {
             if (session.user && user) {
                 session.user.id = user.id;

@@ -21,6 +21,7 @@
     "mongodb": "^6.10.0",
     "next": "14.2.14",
     "next-auth": "^5.0.0-beta.25",
+    "nodemailer": "^6.9.16",
     "pdfjs-dist": "^4.7.76",
     "react": "^18",
     "react-dom": "^18",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.16",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/sanitize-html": "^2.13.0",

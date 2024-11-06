@@ -140,6 +140,12 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                     </div>
                 </div>
             )}
+            {status === 'loading' && (
+                <div className="flex w-full h-40 items-center justify-center">
+                    <Spinner className="w-14 h-14" />
+                </div>
+            )}
+            {status !== 'loading' && (
             <div
                 className={`relative w-full border-2 border-dashed border-blue-400 rounded-lg 
                     p-6 flex flex-col items-center justify-center mb-4 transition-all duration-200 
@@ -209,6 +215,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                     </div>
                 )}
             </div>
+            )}
             <input
                 type="file"
                 ref={fileInputRef}
