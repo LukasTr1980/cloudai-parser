@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { FileUploadArea } from "./components/FileUploadArea";
 import { pageValidateFile } from "./utils/pagefilevalidation";
 import { uploadFile } from "./utils/uploadFile";
@@ -80,34 +80,45 @@ export default function Home() {
     });
   };
 
+  const uploadFileAsync = useCallback(
+    async (file: File) => {
+      setIsUploading(true);
+      try {
+        const apiRoute = status === 'authenticated' ? '/api/plus-upload' : '/api/upload';
+        const response = await uploadFile(file, apiRoute, (progress) => {
+          setUploadProgress(progress);
+        });
+        setUploadedFileName(response.fileName);
+        setUploadCompleted(true);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message || 'An error occurred during upload.');
+        } else {
+          setErrorMessage('An unknown error occurred during upload.');
+        }
+      } finally {
+        setIsUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    },
+    [
+      status,
+      setIsUploading,
+      setErrorMessage,
+      setUploadedFileName,
+      setUploadCompleted,
+      fileInputRef,
+      setUploadProgress,
+    ]
+  );
+
   useEffect(() => {
     if (selectedFile && status !== 'loading') {
       uploadFileAsync(selectedFile);
     }
-  }, [selectedFile, status]);
-
-  const uploadFileAsync = async (file: File) => {
-    setIsUploading(true);
-    try {
-      const apiRoute = status === 'authenticated' ? '/api/plus-upload' : '/api/upload';
-      const response = await uploadFile(file, apiRoute, (progress) => {
-        setUploadProgress(progress);
-      });
-      setUploadedFileName(response.fileName);
-      setUploadCompleted(true);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message || 'An error occurred during upload.');
-      } else {
-        setErrorMessage('An unknown error occurred during upload.');
-      }
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
+  }, [selectedFile, status, uploadFileAsync]);
 
   const handleConvert = async () => {
     if (!uploadedFileName || !uploadCompleted) {
@@ -118,7 +129,8 @@ export default function Home() {
     logEvent('button_click', { buttonName: 'Convert to Text', action: 'User clicked to convert the uploaded file', fileName: uploadedFileName });
     setIsConverting(true);
     try {
-      const response = await fetch('/api/convert', {
+      const apiRoute = status === 'authenticated' ? '/api/plus-convert' : '/api/convert';
+      const response = await fetch(apiRoute, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fileName: uploadedFileName }),
