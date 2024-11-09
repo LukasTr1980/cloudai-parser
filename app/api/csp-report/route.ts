@@ -10,14 +10,14 @@ export async function POST(req: NextRequest) {
 
     const namespace = 'cspReport';
     const maxRequests = 10;
-    const windowInSeconds = 60;
+    const windowInSeconds = 600;
 
     const isAllowed = await rateLimiter(namespace, ip, maxRequests, windowInSeconds);
 
     if (!isAllowed) {
         console.warn('Rate limit exceeded in route csp-report for IP:', ip);
         return NextResponse.json(
-            { message: 'Too many requests. Please try again later.' },
+            { message: 'Too many requests. Please try again in about 10 minutes.' },
             { status: 429 }
         );
     }

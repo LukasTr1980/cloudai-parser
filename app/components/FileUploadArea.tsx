@@ -115,12 +115,12 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     return (
         <>
             {status === 'loading' && (
-                <div className="flex w-full h-32 items-center justify-center">
-                    <Spinner className="w-12 h-12" />
+                <div className="flex w-full h-[968px] sm:h-[968px] md:h-[676px] lg:h-[530px] items-start sm:items-center justify-center pt-8 sm:pt-0">
+                    <Spinner className="w-24 h-24" />
                 </div>
             )}
             {status !== 'loading' && !session?.user && (
-                <div className="flex flex-col p-4 bg-violet-100 border border-gray-300 shadow-md rounded-md mb-6 text-center min-h-32">
+                <div className="flex flex-col p-4 bg-violet-100 border border-gray-300 shadow-md rounded-md mb-6 text-center h-32">
                     <div className="flex flex-col items-center justify-center h-full">
                         <p className="text-lg text-violet-600 mb-2 font-semibold">
                             Want more for free? 30 Pages, 40 MB
@@ -138,11 +138,6 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                             Sign In
                         </Link>
                     </div>
-                </div>
-            )}
-            {status === 'loading' && (
-                <div className="flex w-full h-40 items-center justify-center">
-                    <Spinner className="w-14 h-14" />
                 </div>
             )}
             {status !== 'loading' && (

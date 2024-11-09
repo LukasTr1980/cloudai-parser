@@ -1,18 +1,32 @@
 'use client';
 
-import { MAX_FILE_SIZE, ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES } from "./constants";
+import { MAX_FILE_SIZE, PLUS_MAX_FILE_SIZE, ALLOWED_EXTENSIONS, ALLOWED_MIME_TYPES } from "./constants";
 import * as pdfjsLib from 'pdfjs-dist';
 import { logEvent } from "./logger";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/pdf.worker.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/4.8.69/pdf.worker.min.mjs';
 
 export const getFileExtension = (filename: string): string => {
     const extension = filename.split('.').pop()?.toLocaleLowerCase();
     return extension ? '.' + extension : '';
 };
 
-export const pageValidateFile = (file: File): Promise<string | null> => {
+export const pageValidateFile = (
+    file: File,
+    status: 'authenticated' | 'unauthenticated' | 'loading'
+): Promise<string | null> => {
     return new Promise((resolve) => {
+        let maxNumPages: number;
+        let numMaxSize: number;
+
+        if (status === 'authenticated') {
+            maxNumPages = 30;
+            numMaxSize = PLUS_MAX_FILE_SIZE;
+        } else {
+            maxNumPages = 15;
+            numMaxSize = MAX_FILE_SIZE;
+        }
+
         const fileExtension = getFileExtension(file.name);
         if (
             !ALLOWED_EXTENSIONS.includes(fileExtension) ||
@@ -22,8 +36,8 @@ export const pageValidateFile = (file: File): Promise<string | null> => {
             logEvent('Error', { errorMessage: 'Invalid file type', action: 'User tried to upload an infalid filetype.', fileType: file.type });
             return;
         }
-        if (file.size > MAX_FILE_SIZE) {
-            resolve(`File size exceeds the maximum limit of ${MAX_FILE_SIZE / (1024 * 1024)} MB`)
+        if (file.size > numMaxSize) {
+            resolve(`File size exceeds the maximum limit of ${numMaxSize / (1024 * 1024)} MB`)
             logEvent('Error',
                 {
                     errorMessage: 'File exceeds the maximum size',
@@ -35,7 +49,7 @@ export const pageValidateFile = (file: File): Promise<string | null> => {
 
         if (fileExtension === '.pdf') {
             if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/pdf.worker.min.mjs';
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/4.8.69/pdf.worker.min.mjs';
             }
 
             file.arrayBuffer().then(arrayBuffer => {
@@ -44,11 +58,11 @@ export const pageValidateFile = (file: File): Promise<string | null> => {
                 loadingTask.promise.then(pdfDocument => {
                     const numPages = pdfDocument.numPages;
 
-                    if (numPages > 15) {
-                        resolve('PDF file exceeds the maximum allowed 15 pages.');
+                    if (numPages > maxNumPages) {
+                        resolve(`PDF file exceeds the maximum allowed ${maxNumPages} pages.`);
                         logEvent('Error', {
                             errorMessage: 'File exceeds the maximum pages',
-                            action: 'User tried to upload a file that has more then 15 pages.',
+                            action: `User tried to upload a file that has more then ${maxNumPages} pages.`,
                             numPages: numPages,
                         })
                     } else {

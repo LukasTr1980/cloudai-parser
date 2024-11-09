@@ -23,7 +23,6 @@ import Link from "next/link";
 import sanitize from "sanitize-html";
 import { supportedLanguages } from "./utils/constants";
 import { useSession } from "next-auth/react";
-import Spinner from "./components/Spinner";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -52,7 +51,7 @@ export default function Home() {
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
-    pageValidateFile(file).then((error) => {
+    pageValidateFile(file, status).then((error) => {
       setIsPageValidating(false);
       if (error) {
         setErrorMessage(error);
@@ -375,68 +374,64 @@ export default function Home() {
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {status === 'loading' && (
-          <div className="flex items-center justify-center mb-4">
-            <Spinner className="w-8 h-8" />
-          </div>
-        )}
-
         {status !== 'loading' && (
-          <FeatureCard
-            icon={<UploadIcon className="w-12 h-12 text-blue-500 mb-2" />}
-            title="Upload Files"
-            description={
-              <>
-                {status === 'unauthenticated'
-                  ? (
-                    <>
-                      Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}<strong>15 pages</strong>.
-                    </>
-                  ) : (
-                    <>
-                      Upload PDFs or images up to <strong>40 MB</strong> with a maximum of{' '}<strong>30 pages</strong>.
-                    </>
-                  )
-                }
-              </>
-            }
-          />
+          <>
+            <FeatureCard
+              icon={<UploadIcon className="w-12 h-12 text-blue-500 mb-2" />}
+              title="Upload Files"
+              description={
+                <>
+                  {status === 'unauthenticated'
+                    ? (
+                      <>
+                        Upload PDFs or images up to <strong>20 MB</strong> with a maximum of{' '}<strong>15 pages</strong>.
+                      </>
+                    ) : (
+                      <>
+                        Upload PDFs or images up to <strong>40 MB</strong> with a maximum of{' '}<strong>30 pages</strong>.
+                      </>
+                    )
+                  }
+                </>
+              }
+            />
+            <FeatureCard
+              icon={<LanguageIcon className="w-12 h-12 text-green-500 mb-2" />}
+              title="200+ Languages"
+              description={
+                <>
+                  Supports over 200 languages for text extraction.{' '}
+                  <button className="text-blue-500 underline" onClick={handleScrollToLanguages}>
+                    More
+                  </button>
+                </>
+              }
+            />
+            <FeatureCard
+              icon={<PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />}
+              title="Privacy First"
+              description="Files are deleted immediately after processing. Your data stays private."
+            />
+            <FeatureCard
+              icon={<OpenSourceIcon className="w-12 h-12 text-yellow-500 mb-2" />}
+              title="Open Source"
+              description={
+                <>
+                  View the project on{' '}
+                  <Link
+                    href="https://github.com/LukasTr1980/cloudai-parser"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline"
+                    onClick={() => logEvent('link_click', { buttonName: 'Github Link', action: 'User clicked the Open Source Link' })}
+                  >
+                    Github.
+                  </Link>
+                </>
+              }
+            />
+          </>
         )}
-        <FeatureCard
-          icon={<LanguageIcon className="w-12 h-12 text-green-500 mb-2" />}
-          title="200+ Languages"
-          description={
-            <>
-              Supports over 200 languages for text extraction.{' '}
-              <button className="text-blue-500 underline" onClick={handleScrollToLanguages}>
-                More
-              </button>
-            </>
-          }
-        />
-        <FeatureCard
-          icon={<PrivacyIcon className="w-12 h-12 text-purple-500 mb-2" />}
-          title="Privacy First"
-          description="Files are deleted immediately after processing. Your data stays private."
-        />
-        <FeatureCard
-          icon={<OpenSourceIcon className="w-12 h-12 text-yellow-500 mb-2" />}
-          title="Open Source"
-          description={
-            <>
-              View the project on{' '}
-              <Link
-                href="https://github.com/LukasTr1980/cloudai-parser"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline"
-                onClick={() => logEvent('link_click', { buttonName: 'Github Link', action: 'User clicked the Open Source Link' })}
-              >
-                Github.
-              </Link>
-            </>
-          }
-        />
       </section>
 
       <section id="supported-languages" className="mb-8">

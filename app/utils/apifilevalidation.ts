@@ -1,10 +1,20 @@
 import { fileTypeFromBuffer } from "file-type";
-import { ALLOWED_MIME_TYPES, ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from "./constants";
+import { ALLOWED_MIME_TYPES, ALLOWED_EXTENSIONS, MAX_FILE_SIZE, PLUS_MAX_FILE_SIZE } from "./constants";
 import path from "path";
 import filenamify from "filenamify";
 import { ValidationResult } from "../types";
+import { auth } from "@/auth";
 
 export async function apiValidateFile(file: File): Promise<ValidationResult> {
+    const session = await auth();
+
+    let numMaxSize: number;
+    if (session?.user) {
+        numMaxSize = PLUS_MAX_FILE_SIZE;
+    } else {
+        numMaxSize = MAX_FILE_SIZE;
+    }
+
     console.info('Starting file validation');
 
     if (!file) {
@@ -16,11 +26,11 @@ export async function apiValidateFile(file: File): Promise<ValidationResult> {
     const buffer = Buffer.from(arrayBuffer);
     console.info('File size:', buffer.length);
 
-    if (buffer.length > MAX_FILE_SIZE) {
+    if (buffer.length > numMaxSize) {
         console.warn('File size exceeds the maximum limit');
         return {
             valid: false,
-            message: `File size exceeds the maximum limit of ${MAX_FILE_SIZE / (1024 * 1024)} MB`,
+            message: `File size exceeds the maximum limit of ${numMaxSize / (1024 * 1024)} MB`,
         };
     }
 

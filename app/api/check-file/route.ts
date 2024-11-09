@@ -12,14 +12,14 @@ export async function GET(req: NextRequest) {
 
     const namespace = 'checkFile';
     const maxRequests = 10;
-    const windowInSeconds = 60;
+    const windowInSeconds = 600;
 
     const isAllowed = await rateLimiter(namespace, ip, maxRequests, windowInSeconds);
 
     if (!isAllowed) {
         console.warn('Rate limit exceeded in route check-file for IP:', ip);
         return NextResponse.json(
-            { message: 'Too many requests. Please try again later.' },
+            { message: 'Too many requests. Please try again in about 10 minutes.' },
             { status: 429 }
         );
     }

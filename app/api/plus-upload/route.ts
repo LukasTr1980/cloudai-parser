@@ -32,7 +32,7 @@ export const POST = auth(async function POST(req: AuthenticatedRequest) {
     if (!isAllowed) {
         console.warn('Rate limit exceeded in route plus-upload for IP:', ip);
         return NextResponse.json(
-            { message: 'Too many requests. Please try again later.' },
+            { message: 'Too many requests. Please try again in about a minute.' },
             { status: 429 }
         );
     }
