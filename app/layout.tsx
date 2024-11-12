@@ -54,12 +54,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const cookieStore = cookies();
+}) {
+  const cookieStore = await cookies();
   const apiToken = cookieStore.get('api_token')?.value || '';
 
   return (
