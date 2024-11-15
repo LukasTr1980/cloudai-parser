@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
     const ip =
         req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
         req.headers.get('x-real-ip') ||
-        req.ip ||
         'Unknown';
 
     const namespace = 'log';

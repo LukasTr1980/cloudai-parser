@@ -19,7 +19,6 @@ export const GET = auth(async function GET(req: AuthenticatedRequest) {
     const ip =
         req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
         req.headers.get('x-real-ip') ||
-        req.ip ||
         'Unknown';
 
     const namespace = 'plusCheckFile';
