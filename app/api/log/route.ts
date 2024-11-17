@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
                 language: Joi.string().optional(),
                 numPage: Joi.number().optional(),
                 provider: Joi.string().optional(),
+                infoMessage: Joi.string().optional(),
             }).unknown(true),
         });
 

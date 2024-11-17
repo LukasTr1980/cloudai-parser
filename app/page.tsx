@@ -48,6 +48,8 @@ export default function Home() {
   const [isFileDeleted, setIsFileDeleted] = useState<boolean>(false);
   const supportedLanguagesRef = useRef<HTMLDivElement>(null);
   const { status } = useSession();
+  const [isPolling, setIsPolling] = useState<boolean>(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -119,6 +121,14 @@ export default function Home() {
     }
   }, [selectedFile, status, uploadFileAsync]);
 
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
   const handleConvert = async () => {
     if (!uploadedFileName || !uploadCompleted) {
       setErrorMessage('No file to convert');
@@ -141,23 +151,92 @@ export default function Home() {
         throw new Error(errorMessage);
       }
       const result = await response.json();
-      setExtractedText(result.data.text);
-      setPageCount(result.data.pageCount);
-      setDetectedLanguages(result.data.detectedLanguages);
-      setErrorMessage('');
-      setIsConversionCompleted(true);
-      setFileExists(false);
-      setIsFileDeleted(true);
+
+      if (status === 'authenticated') {
+        const operationName = result.operationName;
+        if (!operationName) {
+          throw new Error('Operation name not retrieved');
+        }
+        setIsPolling(true);
+        startPolling(operationName);
+      } else {
+
+        setExtractedText(result.data.text);
+        setPageCount(result.data.pageCount);
+        setDetectedLanguages(result.data.detectedLanguages);
+        setErrorMessage('');
+        setIsConversionCompleted(true);
+        setFileExists(false);
+        setIsFileDeleted(true);
+        setIsConverting(false);
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
+        setIsConverting(false);
       } else {
         setErrorMessage('An unknown error occurred during conversion.');
+        setIsConverting(false);
       }
-    } finally {
-      setIsConverting(false);
     }
   }
+
+  const startPolling = (operationName: string) => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+
+    pollingIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/plus-convert-status?operationName=${encodeURIComponent(operationName)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Token': window.API_TOKEN,
+          },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const errorResponse = await response.json();
+          const errorMessage = errorResponse.message || 'Error checking operation status';
+          throw new Error(errorMessage);
+        }
+
+        const result = await response.json();
+        if (response.status === 200) {
+          setIsConverting(false);
+          setExtractedText(result.data.text);
+          setPageCount(result.data.pageCount);
+          setDetectedLanguages(result.data.detectedLanguages);
+          setErrorMessage('');
+          setIsConversionCompleted(true);
+          setFileExists(false);
+          setIsFileDeleted(true);
+          setIsPolling(false);
+          clearInterval(pollingIntervalRef.current!);
+          pollingIntervalRef.current = null;
+        } else if (response.status === 202) {
+        } else {
+          throw new Error(result.message || 'Unexpected status code from status endpoint');
+        }
+
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+          setIsConverting(false);
+        } else {
+          setErrorMessage('An unkown Error occurred during polling.');
+          setIsConverting(false);
+        }
+        setIsPolling(false);
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+          pollingIntervalRef.current = null;
+        }
+      }
+    }, 5000);
+  };
 
   const handleCopy = () => {
     handleCopyToClipboard({ extractedText, setCopied });
@@ -170,6 +249,64 @@ export default function Home() {
       logEvent('button_click', { buttonName: 'Download', action: 'User downloaded extracted text', textLength: extractedText.length });
     }
   };
+
+  const checkForOngoingOperation = useCallback(async () => {
+    if (status !== 'authenticated') return;
+
+    try {
+      const response = await fetch('/api/plus-get-ongoing-operation', {
+        method: 'GET',
+        headers: {
+          'X-Api-Token': window.API_TOKEN,
+        },
+        credentials: 'include'
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        const { operationName, fileName } = data.ongoingOperation;
+        if (operationName && fileName) {
+          setUploadedFileName(fileName);
+          setIsPolling(true);
+          setIsConverting(true);
+          startPolling(operationName);
+        } else {
+          setUploadedFileName(null);
+          setIsPolling(false);
+          setIsConverting(false);
+        }
+      } else if (response.status === 204) {
+        setUploadedFileName(null);
+        setIsPolling(false);
+        setIsConverting(false);
+      } else {
+        setUploadedFileName(null);
+        setIsPolling(false);
+        setIsConverting(false);
+        throw new Error('Failed to retrieve ongoing operation');
+      }
+    } catch (error) {
+      setUploadedFileName(null);
+      setIsPolling(false);
+      setIsConverting(false);
+      logEvent('Error', { errorMessage: error || 'Failed to check for ongoing operations.' });
+      setErrorMessage('Error checking for ongoing operation');
+    }
+  }, [status]);
+
+  const clearOngoingOperation = async () => {
+    try {
+      await fetch('/api/plus-clear-ongoing-operation', {
+        method: 'POST',
+        headers: {
+          'X-Api-Token': window.API_TOKEN,
+        },
+        credentials: 'include',
+      });
+    } catch (error) {
+      logEvent('Error', { errorMessage: error || 'Failed to reset clearOngoingOperation.' });
+    }
+  }
 
   const handleReset = () => {
     logEvent('button_click', { buttonName: 'Upload another file', action: 'User Uploaded another File' });
@@ -187,6 +324,14 @@ export default function Home() {
     setSelectedFileSize(null);
     setSelectedFileName(null);
     setErrorMessage('');
+    setIsPolling(false);
+    if (status === 'authenticated') {
+      clearOngoingOperation();
+    }
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -284,6 +429,12 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (status === 'authenticated') {
+      checkForOngoingOperation();
+    }
+  }, [status, checkForOngoingOperation]);
+
   const handleScrollToLanguages = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     event.preventDefault();
     logEvent('link_click', {
@@ -334,13 +485,22 @@ export default function Home() {
                   variant="primary"
                   size="medium"
                   onClick={handleConvert}
-                  disabled={isConverting || conversionCompleted}
+                  disabled={isConverting || conversionCompleted || isPolling}
                   isLoading={isConverting}
                 >
                   Convert to Text
                 </Button>
               </div>
             )}
+          </div>
+        )}
+        {isPolling && (
+          <div className="flex flex-col items-center mt-4">
+            <div className="flex items-center text-blue-600 mb-4">
+              <span className="text-lg font-semibold">
+                Processing your document... This may take several minutes.
+              </span>
+            </div>
           </div>
         )}
         {errorMessage && <ErrorMessage message={errorMessage} />}

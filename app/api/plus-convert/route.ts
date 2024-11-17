@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
-import { Storage } from "@google-cloud/storage";
 import { rateLimiter } from "@/app/utils/rateLimiter";
 import { readSecretOrEnvVar } from "@/app/utils/readSecretOrEnvVar";
 import mime from 'mime-types';
 import { auth } from "@/auth";
+import clientPromise from "@/app/utils/db";
 
-interface AuthenticatedRequest extends NextRequest {
-    auth: unknown;
-}
-
-export const POST = auth(async function POST(req: AuthenticatedRequest) {
-    if (!req.auth) {
-        return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+export const POST = async (req: NextRequest) => {
+    const session = await auth();
+    
+    if (!session?.user.id) {
+        return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
     }
+    
+    const userId = session.user.id;
 
     const ip =
         req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -62,10 +62,12 @@ export const POST = auth(async function POST(req: AuthenticatedRequest) {
         const mimeType = mime.lookup(fileName) || 'application/octet-stream';
         console.info('Determined MIME type:', mimeType);
 
-        const extractedText = await processDocument(gcsInputUri, mimeType);
-        console.info('Extracted text from document successfully');
+        const operationName = await initiateDocumentProcessing(gcsInputUri, mimeType, fileName, userId);
 
-        response = NextResponse.json({ message: 'Conversion successful', data: extractedText }, { status: 200 });
+        response = NextResponse.json({
+            message: 'Document processing has started',
+            operationName: operationName
+        }, { status: 202 });
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error('Conversion error:', error.stack);
@@ -75,39 +77,17 @@ export const POST = auth(async function POST(req: AuthenticatedRequest) {
             console.error('Unknown conversion error:', error);
             response = NextResponse.json({ message: 'Conversion failed' }, { status: 500 });
         }
-    } finally {
-        if (fileName) {
-            try {
-                const bucketName = process.env.GCS_BUCKET_NAME;
-                if (bucketName) {
-                    const storage = new Storage();
-                    await storage.bucket(bucketName).file(fileName).delete();
-                    console.info('Deleted file from GCS:', fileName);
-                }
-            } catch (deleteError: unknown) {
-                console.error('Error deleting file from GCS:', deleteError);
-            }
-        }
-        try {
-            response = response || NextResponse.json({});
-            response.cookies.delete('file_info');
-            console.info('Unset the file_info cookie.');
-        } catch (cookieError: unknown) {
-            console.error('Error unsetting cookie:', cookieError);
-        }
     }
 
     return response;
-});
+};
 
-async function processDocument(
+async function initiateDocumentProcessing(
     gcsInputUri: string,
-    mimeType: string
-): Promise<{
-    text: string;
-    pageCount?: number;
-    detectedLanguages?: string[];
-}> {
+    mimeType: string,
+    fileName: string,
+    userId: string
+): Promise<string> {
     console.info('Starting document processing with batch processing');
 
     const projectId = await readSecretOrEnvVar('google_project_id', 'PROJECT_ID');
@@ -130,8 +110,6 @@ async function processDocument(
     const client = new DocumentProcessorServiceClient({
         apiEndpoint: `${location}-documentai.googleapis.com`,
     });
-
-    const storage = new Storage();
 
     const outputPrefix = `output/${Date.now()}-${Math.random().toString(36).substr(2, 9)}/`;
     const gcsOutputUri = `gs://${outputBucketName}/${outputPrefix}`;
@@ -165,62 +143,15 @@ async function processDocument(
     try {
         const [operation] = await client.batchProcessDocuments(request);
 
-        console.info('Waiting for batch operation to complete...');
-        await operation.promise();
-        console.info('Batch processing complete.');
-
-        const [files] = await storage.bucket(outputBucketName).getFiles({
-            prefix: outputPrefix,
-        });
-
-        if (!files || files.length === 0) {
-            console.error('No output files found in GCS output bucket.');
-            throw new Error('No output files found in GCS output bucket.');
+        if (!operation.name) {
+            throw new Error('Operation name is undefined. Failed to initiate document processing.');
         }
 
-        console.info(`Found ${files.length} output files.`);
+        await storeOperationDetails(userId, operation.name, fileName, outputPrefix);
 
-        let extractedText = '';
-        let pageCount = 0;
-        const detectedLanguagesSet = new Set<string>();
+        console.info(`Batch processing initiated. Operation name: ${operation.name}`);
 
-        for (const file of files) {
-            const [fileContents] = await file.download();
-            const document = JSON.parse(fileContents.toString());
-
-            if (document.text) {
-                extractedText += document.text;
-            }
-
-            if (document.pages) {
-                pageCount += document.pages.length;
-                for (const page of document.pages) {
-                    if (page.detectedLanguages) {
-                        for (const lang of page.detectedLanguages) {
-                            const confidence = lang.confidence ?? 0;
-                            const languageCode = lang.languageCode;
-                            if (confidence >= 0.8 && languageCode) {
-                                detectedLanguagesSet.add(languageCode);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        const detectedLanguages = Array.from(detectedLanguagesSet);
-
-        console.info('Cleaning up GCS output files...');
-        for (const file of files) {
-            await file.delete();
-        }
-        console.info('GCS output files cleanup complete.');
-
-        return {
-            text: extractedText,
-            pageCount,
-            detectedLanguages,
-        };
+        return operation.name;
     } catch (error: unknown) {
         if (error instanceof Error) {
             console.error('Document AI batch processing error:', error.message);
@@ -228,6 +159,34 @@ async function processDocument(
         } else {
             console.error('Document AI batch processing error:', error);
             throw new Error('Failed to process document with Document AI batch processing');
+        }
+    }
+}
+
+async function storeOperationDetails(userId: string, operationName: string, fileName: string, outputPrefix: string) {
+    try {
+        const client = await clientPromise;
+        const db = client.db('tlxtech');
+        const operationsCollection = db.collection('operations');
+
+        const operationData = {
+            userId,
+            operationName,
+            fileName,
+            outputPrefix,
+            createdAt: new Date(),
+        };
+
+        await operationsCollection.insertOne(operationData);
+
+        console.info(`Operation details stored in MongoDB for user ${userId}: operationName=${operationName}, fileName=${fileName}, outputPrefix=${outputPrefix}`);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('Error storing operation details in MongoDB:', error.message);
+            throw new Error(error.message);
+        } else {
+            console.error('Error storing operation details in MongoDB:', error);
+            throw new Error('Error storing operation details in MongoDB.');
         }
     }
 }
