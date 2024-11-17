@@ -3,16 +3,14 @@ import { rateLimiter } from "@/app/utils/rateLimiter";
 import { Storage } from "@google-cloud/storage";
 import { auth } from "@/auth";
 
-interface AuthenticatedRequest extends NextRequest {
-    auth: unknown;
-}
-
 const storage = new Storage();
 const bucketName = process.env.GCS_BUCKET_NAME || '/tmp/';
 const bucket = storage.bucket(bucketName);
 
-export const GET = auth(async function GET(req: AuthenticatedRequest) {
-    if (!req.auth) {
+export const GET = async (req: NextRequest) => {
+    const session = await auth();
+
+    if (!session?.user.id) {
         return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
     }
 
@@ -121,4 +119,4 @@ export const GET = auth(async function GET(req: AuthenticatedRequest) {
         );
     }
 
-});
+};
