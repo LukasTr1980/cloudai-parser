@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
         'Unknown';
 
     const namespace = 'checkFile';
-    const maxRequests = 10;
+    const maxRequests = 100;
     const windowInSeconds = 600;
 
     const isAllowed = await rateLimiter(namespace, ip, maxRequests, windowInSeconds);

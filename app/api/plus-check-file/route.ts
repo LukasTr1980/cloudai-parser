@@ -22,7 +22,7 @@ export const GET = auth(async function GET(req: AuthenticatedRequest) {
         'Unknown';
 
     const namespace = 'plusCheckFile';
-    const maxRequests = 10;
+    const maxRequests = 20;
     const windowInSeconds = 60;
 
     const isAllowed = await rateLimiter(namespace, ip, maxRequests, windowInSeconds);

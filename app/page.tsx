@@ -50,6 +50,7 @@ export default function Home() {
   const { status } = useSession();
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -435,6 +436,33 @@ export default function Home() {
     }
   }, [status, checkForOngoingOperation]);
 
+  useEffect(() => {
+    let timerInterval: number | null = null;
+
+    if (isPolling) {
+      const startTime = Date.now();
+
+      timerInterval = window.setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 10);
+    } else {
+      setElapsedTime(0);
+    }
+
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [isPolling]);
+
+  const formatElapsedTime = (milliseconds: number) => {
+    const totalSeconds = milliseconds / 1000;
+    const secondsWithDecimal = (totalSeconds).toFixed(1);
+
+    return `${secondsWithDecimal}s`;
+  }
+
   const handleScrollToLanguages = (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     event.preventDefault();
     logEvent('link_click', {
@@ -496,9 +524,9 @@ export default function Home() {
         )}
         {isPolling && (
           <div className="flex flex-col items-center mt-4">
-            <div className="flex items-center text-blue-600 mb-4">
+            <div className="flex items-center text-gray-600 mb-4">
               <span className="text-lg font-semibold">
-                Processing your document... This may take several minutes.
+                Processing your document... This may take several minutes. {formatElapsedTime(elapsedTime)}
               </span>
             </div>
           </div>
