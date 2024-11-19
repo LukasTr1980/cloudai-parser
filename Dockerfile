@@ -21,6 +21,13 @@ COPY --from=deps /app/node_modules ./node_modules
 # Install dependencies required for building
 RUN npm ci
 
+# Set dummy environment variables for the build
+ENV MONGODB_URI='dummy_mongodb_uri'
+ENV EMAIL_SERVER='smtp://dummy_email_server'
+ENV EMAIL_FROM='dummy_email_from@example.com'
+ENV GOOGLE_CLIENT_ID='dummy_google_client_id'
+ENV GOOGLE_CLIENT_SECRET='dummy_google_client_secret'
+
 # Build the Next.js application
 RUN npm run build
 

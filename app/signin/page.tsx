@@ -35,7 +35,7 @@ export default function SignInPage() {
             }
 
             setEmailError("");
-            signIn("nodemailer", { email, callbackUrl: "/" });
+            signIn("nodemailer", { email, redirectTo: "/" });
         } else {
             signIn(providerId, { redirectTo: "/" });
         }
