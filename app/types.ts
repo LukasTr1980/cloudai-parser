@@ -45,7 +45,7 @@ export interface ErrorMessageProps {
 }
 
 export interface ExtractedTextSectionProps {
-    extractedText: string;
+    pages: Array<{ pageNumber: number; text: string; confidence?: number }>;
     selectedFileName: string | null;
     pageCount?: number;
     copied: boolean;

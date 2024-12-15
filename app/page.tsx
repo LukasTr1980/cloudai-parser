@@ -35,7 +35,6 @@ export default function Home() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadCompleted, setUploadCompleted] = useState<boolean>(false);
-  const [extractedText, setExtractedText] = useState<string>('');
   const extractedTextRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [textFileName] = useState<string>('extracted_text');
@@ -51,6 +50,7 @@ export default function Home() {
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [pages, setPages] = useState<Array<{ pageNumber: number, text: string; confidence?: number }>>([]);
 
   const handleFileSelect = (file: File) => {
     setIsPageValidating(true);
@@ -73,7 +73,7 @@ export default function Home() {
         setSelectedFile(file);
         setSelectedFileName(sanitizedFileName);
         setSelectedFileSize(file.size);
-        setExtractedText('');
+        setPages([]);
         setPageCount(undefined);
         setDetectedLanguages(undefined);
         setIsConversionCompleted(false);
@@ -162,7 +162,7 @@ export default function Home() {
         startPolling(operationName);
       } else {
 
-        setExtractedText(result.data.text);
+        setPages(result.data.pages || []);
         setPageCount(result.data.pageCount);
         setDetectedLanguages(result.data.detectedLanguages);
         setErrorMessage('');
@@ -207,7 +207,7 @@ export default function Home() {
         const result = await response.json();
         if (response.status === 200) {
           setIsConverting(false);
-          setExtractedText(result.data.text);
+          setPages(result.data.pages || []);
           setPageCount(result.data.pageCount);
           setDetectedLanguages(result.data.detectedLanguages);
           setErrorMessage('');
@@ -240,14 +240,16 @@ export default function Home() {
   };
 
   const handleCopy = () => {
-    handleCopyToClipboard({ extractedText, setCopied });
-    logEvent('button_click', { buttonName: 'Copy', action: 'User copied extracted text to clipboard', textLength: extractedText.length });
+    const allText = pages.map(p => p.text).join('\n\n');
+    handleCopyToClipboard({ extractedText: allText, setCopied });
+    logEvent('button_click', { buttonName: 'Copy', action: 'User copied extracted text to clipboard', textLength: allText.length });
   };
 
   const handleDownload = () => {
-    if (extractedText) {
-      downloadTextFile({ extractedText, fileName: textFileName });
-      logEvent('button_click', { buttonName: 'Download', action: 'User downloaded extracted text', textLength: extractedText.length });
+    if (pages && pages.length > 0) {
+      const allText = pages.map(p => p.text).join('\n\n');
+      downloadTextFile({ extractedText: allText, fileName: textFileName });
+      logEvent('button_click', { buttonName: 'Download', action: 'User downloaded extracted text', textLength: allText.length });
     }
   };
 
@@ -316,7 +318,7 @@ export default function Home() {
     setUploadedFileName(null);
     setUploadCompleted(false);
     setUploadProgress(0);
-    setExtractedText('');
+    setPages([]);
     setPageCount(undefined);
     setDetectedLanguages(undefined);
     setIsConversionCompleted(false);
@@ -348,10 +350,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (extractedText && extractedTextRef.current) {
+    if (pages && pages.length > 0 && extractedTextRef.current) {
       extractedTextRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [extractedText]);
+  }, [pages]);
 
   useEffect(() => {
     const checkFileExistence = async () => {
@@ -535,11 +537,11 @@ export default function Home() {
       </section>
 
       <section className="mb-8">
-        {extractedText && (
+        {pages && pages.length > 0 && (
           <>
             <div ref={extractedTextRef}>
               <ExtractedTextSection
-                extractedText={extractedText}
+                pages={pages}
                 selectedFileName={selectedFileName}
                 pageCount={pageCount}
                 copied={copied}

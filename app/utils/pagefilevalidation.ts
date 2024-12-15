@@ -4,7 +4,7 @@ import { MAX_FILE_SIZE, PLUS_MAX_FILE_SIZE, ALLOWED_EXTENSIONS, ALLOWED_MIME_TYP
 import * as pdfjsLib from 'pdfjs-dist';
 import { logEvent } from "./logger";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/4.8.69/pdf.worker.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/4.9.155/pdf.worker.min.mjs';
 
 export const getFileExtension = (filename: string): string => {
     const extension = filename.split('.').pop()?.toLocaleLowerCase();
@@ -49,7 +49,7 @@ export const pageValidateFile = (
 
         if (fileExtension === '.pdf') {
             if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/4.8.69/pdf.worker.min.mjs';
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://charts.cx/cdn/4.9.155/pdf.worker.min.mjs';
             }
 
             file.arrayBuffer().then(arrayBuffer => {

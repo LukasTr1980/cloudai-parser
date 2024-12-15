@@ -99,6 +99,7 @@ export async function POST(req: NextRequest) {
 
 async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<{
     text: string;
+    pages: Array<{ pageNumber: number; text: string; confidence?: number }>;
     pageCount?: number;
     detectedLanguages?: string[];
 }> {
@@ -146,7 +147,7 @@ async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<{
             throw new Error('No text extracted from document');
         }
 
-        const text = document.text;
+        const fullText = document.text;
         const pageCount = document.pages?.length || 0;
         let detectedLanguages: string[] = [];
 
@@ -166,8 +167,29 @@ async function processDocument(fileBuffer: Buffer, mimeType: string): Promise<{
             detectedLanguages = Array.from(languageSet);
         }
 
+        const pagesData: Array<{ pageNumber: number; text: string; confidence?: number }> = [];
+        if (document.pages) {
+            for (const page of document.pages) {
+                let pageText = '';
+                if (page.layout && page.layout.textAnchor?.textSegments) {
+                    for (const segment of page.layout.textAnchor.textSegments) {
+                        const startIndex = Number(segment.startIndex ?? '0');
+                        const endIndex = Number(segment.endIndex ?? '0');
+                        pageText += fullText.substring(startIndex, endIndex);
+                    }
+                }
+
+                pagesData.push({
+                    pageNumber: page.pageNumber ?? pagesData.length + 1,
+                    text: pageText.trim(),
+                    confidence: page.layout?.confidence ?? undefined,
+                });
+            }
+        }
+
         return {
-            text,
+            text: fullText,
+            pages: pagesData,
             pageCount,
             detectedLanguages,
         }
