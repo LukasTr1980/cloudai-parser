@@ -528,7 +528,7 @@ export default function Home() {
           <div className="flex flex-col items-center mt-4">
             <div className="flex items-center text-gray-600 mb-4">
               <span className="text-lg font-semibold">
-                Processing your document... This may take several minutes. {formatElapsedTime(elapsedTime)}
+                Processing your document... This may take up to a minute. {formatElapsedTime(elapsedTime)}
               </span>
             </div>
           </div>

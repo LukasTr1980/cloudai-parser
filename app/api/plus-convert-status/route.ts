@@ -154,6 +154,7 @@ async function finalizeDocumentProcessing(
     userId: string
 ): Promise<{
     text: string;
+    pages: Array<{ pageNumber: number; text: string; confidence?: number }>;
     pageCount?: number;
     detectedLanguages?: string[];
 }> {
@@ -176,32 +177,53 @@ async function finalizeDocumentProcessing(
 
     console.info(`Found ${files.length} output files`);
 
-    let extractedText = '';
+    let fullText = '';
     let pageCount = 0;
     const detectedLanguagesSet = new Set<string>();
+    const pagesData: Array<{ pageNumber: number; text: string; confidence?: number }> = [];
+    let globalPageNumber = 1;
 
     for (const file of files) {
         const [fileContents] = await file.download();
         const document = JSON.parse(fileContents.toString());
 
-        if (document.text) {
-            extractedText += document.text;
+        if (!document || !document.text) {
+            continue;
         }
 
-        if (document.pages) {
-            pageCount += document.pages.length;
-            for (const page of document.pages) {
-                if (page.detectedLanguages) {
-                    for (const lang of page.detectedLanguages) {
-                        const confidence = lang.confidence ?? 0;
-                        const languageCode = lang.languageCode;
-                        if (confidence >= 0.8 && languageCode) {
-                            detectedLanguagesSet.add(languageCode);
-                        }
-                    }
+        const docText = document.text;
+        const docPages = document.pages || [];
+
+        for (const page of docPages) {
+            const detectedLanguages = page.detectedLanguages || [];
+            for (const lang of detectedLanguages) {
+                const confidence = lang.confidence ?? 0;
+                const languageCode = lang.languageCode;
+                if (confidence >= 0.8 && languageCode) {
+                    detectedLanguagesSet.add(languageCode);
                 }
             }
         }
+
+        for (const page of docPages) {
+            let pageText = '';
+            if (page.layout && page.layout.textAnchor.textSegments) {
+                for (const segment of page.layout.textAnchor.textSegments) {
+                    const startIndex = Number(segment.startIndex ?? '0');
+                    const endIndex = Number(segment.endIndex ?? '0');
+                    pageText += docText.substring(startIndex, endIndex);
+                }
+            }
+
+            pagesData.push({
+                pageNumber: globalPageNumber++,
+                text: pageText.trim(),
+                confidence: page.layout?.confidence ?? undefined,
+            });
+        }
+
+        fullText += docText;
+        pageCount +=docPages.length;
     }
 
     const detectedLanguages = Array.from(detectedLanguagesSet);
@@ -226,7 +248,8 @@ async function finalizeDocumentProcessing(
     await deleteOperationDetails(operationName, userId);
 
     return {
-        text: extractedText,
+        text: fullText,
+        pages: pagesData,
         pageCount,
         detectedLanguages,
     };

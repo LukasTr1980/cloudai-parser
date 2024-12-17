@@ -22,7 +22,7 @@ const ContentSecurityPolicyProd = `
     script-src 'self' 'unsafe-inline' ${CDN_DOMAIN};
     worker-src 'self' blob:;
     style-src 'self' 'unsafe-inline' ${CDN_DOMAIN};
-    img-src 'self' blob: data: ${CDN_DOMAIN};
+    img-src 'self' blob: data: ${CDN_DOMAIN} lh3.googleusercontent.com;
     connect-src 'self' ${CDN_DOMAIN};
     font-src 'self' ${CDN_DOMAIN};
     object-src 'self';
