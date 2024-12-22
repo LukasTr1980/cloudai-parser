@@ -350,12 +350,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (pages && pages.length > 0 && extractedTextRef.current) {
-      extractedTextRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [pages]);
-
-  useEffect(() => {
     const checkFileExistence = async () => {
       if (status === 'loading') return;
 

@@ -86,6 +86,7 @@ export default function UserAvatar() {
             >
                 {user.image ? (
                     <Image
+                        unoptimized
                         src={user.image}
                         alt="User Avatar"
                         width={40}

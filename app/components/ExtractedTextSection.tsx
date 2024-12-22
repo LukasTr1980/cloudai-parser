@@ -1,6 +1,5 @@
 import { CopyIcon, CheckIcon, DownloadIcon, LanguageIcon } from "./Icons";
 import { ExtractedTextSectionProps } from "../types";
-import { useEffect, useState } from "react";
 
 const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
     pages,
@@ -11,67 +10,8 @@ const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
     pageCount,
     detectedLanguages,
 }) => {
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [inputValue, setInputValue] = useState<string>(String(currentPage));
-
-    useEffect(() => {
-        setInputValue(String(currentPage));
-    }, [currentPage]);
-
-    const pageToDisplay = pages.find((p) => p.pageNumber === currentPage);
-
-    const handleNextPage = () => {
-        if (pageCount && currentPage < pageCount) {
-            setCurrentPage((prev) => prev + 1);
-        }
-    };
-
-    const handlePrevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage((prev) => prev - 1);
-        }
-    };
-
-    const finalizePageChange = () => {
-        const val = parseInt(inputValue, 10);
-        if (!isNaN(val) && pageCount && val >= 1 && val <= pageCount) {
-            setCurrentPage(val);
-        } else {
-            setInputValue(String(currentPage));
-        }
-    };
-
-    const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(e.target.value);
-    };
-
-    const handlePageInputBlur = () => {
-        finalizePageChange();
-    };
-
-    const handlePageInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.currentTarget.blur();
-        }
-    };
-
-    let confidenceText = '';
-    let confidenceClass = '';
-    if (pageToDisplay && typeof pageToDisplay.confidence === 'number') {
-        const confidenceValue = (pageToDisplay.confidence *  100);
-        confidenceText = `${confidenceValue.toFixed(0)}%`;
-
-        if (confidenceValue > 90) {
-            confidenceClass = 'text-green-600';
-        } else if (confidenceValue > 60) {
-            confidenceClass = 'text-yellow-600';
-        } else {
-            confidenceClass = 'text-red-600';
-        }
-    }
 
     return (
-
         <div className="bg-gray-50 rounded-xl pt-6 pb-6 mx-auto">
             <div className="flex flex-col sm:flex-row items-center justify-between px-4">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex-1 min-w-0">
@@ -109,7 +49,6 @@ const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
                 </div>
             </div>
 
-
             <div className="px-4 mb-4 mt-2">
                 <div className="flex items-center space-x-6">
                     {detectedLanguages && detectedLanguages.length > 0 && (
@@ -141,54 +80,55 @@ const ExtractedTextSection: React.FC<ExtractedTextSectionProps> = ({
                 </div>
             </div>
 
-            {pageCount && pageCount > 1 && (
-                <div className="px-4 mb-4 flex items-center space-x-2">
-                    <button
-                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded disabled:opacity-50"
-                        onClick={handlePrevPage}
-                        disabled={currentPage === 1}
-                    >
-                        Previous
-                    </button>
-                    <input
-                        type="number"
-                        className="w-16 text-center border border-gray-300 rounded"
-                        min={1}
-                        max={pageCount}
-                        value={inputValue}
-                        onChange={handlePageInputChange}
-                        onBlur={handlePageInputBlur}
-                        onKeyDown={handlePageInputKeyDown}
-                    />
-                    <span>/ {pageCount}</span>
-                    <button
-                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded disabled:opacity-50"
-                        onClick={handleNextPage}
-                        disabled={currentPage === pageCount}
-                    >
-                        Next
-                    </button>
+            {pageCount && (
+                <div className="px-4 mt-2 mb-4">
+                    <span className="text-gray-600 font-medium">Total Pages: {pageCount}</span>
                 </div>
             )}
 
-            <div className="space-y-4 px-4">
-                {pageToDisplay ? (
-                    <div key={pageToDisplay.pageNumber}>
-                        <h3 className="text-md font-semibold text-gray-700 mb-2">
-                            Page {pageToDisplay.pageNumber}
-                            {typeof pageToDisplay.confidence === 'number' && (
-                                <span className={`ml-4 text-sm font-semibold ${confidenceClass}`}>
-                                    Confidence: {confidenceText}
-                                </span>
-                            )}
-                        </h3>
-                        <textarea
-                            className="w-full h-72 p-4 text-gray-800 bg-white border border-gray-200 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                            value={pageToDisplay.text}
-                            spellCheck={false}
-                            readOnly
-                        />
-                    </div>
+            <div className="space-y-8 px-4">
+                {pages && pages.length ? (
+                    pages.map((page) => {
+                        let confidenceText = '';
+                        let confidenceClass = '';
+                        if (typeof page.confidence === 'number') {
+                            const confidenceValue = page.confidence * 100;
+                            confidenceText = `${confidenceValue.toFixed(0)}%`;
+
+                            if (confidenceValue > 90) {
+                                confidenceClass = 'text-green-600';
+                            } else if (confidenceValue > 60) {
+                                confidenceClass = 'text-yellow-600';
+                            } else {
+                                confidenceClass = 'text-red-600';
+                            }
+                        }
+
+                        return (
+                            <div key={page.pageNumber}>
+                                <h3 className="text-md font-semibold text-gray-700 mb-1">
+                                    Page {page.pageNumber}
+                                </h3>
+                                {typeof page.confidence === 'number' && (
+                                    <p
+                                        className={`text-sm font-semibold mb-3 ${confidenceClass}`}
+                                    >
+                                        Confidence: {confidenceText}
+                                    </p>
+                                )}
+                                <div
+                                    className="relative mx-auto bg-white border border-gray-200 shadow
+                                overflow-auto w-full
+                                md:max-w-[210mm] md:min-h-[297mm]
+                                p-4 md:p-[20mm]"
+                                >
+                                    <div className="text-gray-800 whitespace-pre-wrap">
+                                        {page.text}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })
                 ) : (
                     <p className="text-gray-700">No pages to display.</p>
                 )}
