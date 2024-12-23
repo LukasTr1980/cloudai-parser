@@ -15,7 +15,7 @@
     "file-type": "^19.5.0",
     "filenamify": "^6.0.0",
     "flag-icons": "^7.2.3",
-    "ioredis": "^5.4.1",
+    "ioredis": "^5.4.2",
     "joi": "^17.13.3",
     "mime-types": "^2.1.35",
     "mongodb": "^6.10.0",
